@@ -1,0 +1,298 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5D1A00000000000000000101 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000001 /* AppDelegate.swift */; };
+		5D1A00000000000000000102 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000002 /* WebViewController.swift */; };
+		5D1A00000000000000000103 /* SchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000003 /* SchemeHandler.swift */; };
+		5D1A00000000000000000104 /* NativeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000004 /* NativeBridge.swift */; };
+		5D1A00000000000000000106 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000006 /* Assets.xcassets */; };
+		5D1A00000000000000000107 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000007 /* www */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5D1A00000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		5D1A00000000000000000002 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		5D1A00000000000000000003 /* SchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemeHandler.swift; sourceTree = "<group>"; };
+		5D1A00000000000000000004 /* NativeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeBridge.swift; sourceTree = "<group>"; };
+		5D1A00000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5D1A00000000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5D1A00000000000000000007 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+		5D1A00000000000000000008 /* PDFStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5D1A00000000000000000401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5D1A00000000000000000200 = {
+			isa = PBXGroup;
+			children = (
+				5D1A00000000000000000201 /* PDFStudio */,
+				5D1A00000000000000000202 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5D1A00000000000000000201 /* PDFStudio */ = {
+			isa = PBXGroup;
+			children = (
+				5D1A00000000000000000001 /* AppDelegate.swift */,
+				5D1A00000000000000000002 /* WebViewController.swift */,
+				5D1A00000000000000000003 /* SchemeHandler.swift */,
+				5D1A00000000000000000004 /* NativeBridge.swift */,
+				5D1A00000000000000000006 /* Assets.xcassets */,
+				5D1A00000000000000000005 /* Info.plist */,
+				5D1A00000000000000000007 /* www */,
+			);
+			path = PDFStudio;
+			sourceTree = "<group>";
+		};
+		5D1A00000000000000000202 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5D1A00000000000000000008 /* PDFStudio.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5D1A00000000000000000300 /* PDFStudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5D1A00000000000000000602 /* Build configuration list for PBXNativeTarget "PDFStudio" */;
+			buildPhases = (
+				5D1A00000000000000000404 /* Ortak arayüzü kopyala */,
+				5D1A00000000000000000402 /* Sources */,
+				5D1A00000000000000000401 /* Frameworks */,
+				5D1A00000000000000000403 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PDFStudio;
+			productName = PDFStudio;
+			productReference = 5D1A00000000000000000008 /* PDFStudio.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5D1A00000000000000000500 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					5D1A00000000000000000300 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 5D1A00000000000000000601 /* Build configuration list for PBXProject "PDFStudio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = tr;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				tr,
+				en,
+				Base,
+			);
+			mainGroup = 5D1A00000000000000000200;
+			productRefGroup = 5D1A00000000000000000202 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5D1A00000000000000000300 /* PDFStudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5D1A00000000000000000403 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D1A00000000000000000106 /* Assets.xcassets in Resources */,
+				5D1A00000000000000000107 /* www in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5D1A00000000000000000404 /* Ortak arayüzü kopyala */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Ortak arayüzü kopyala";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# MOBIL_ORTAK/web → PDFStudio/www (Node.js gerekir)\nexport PATH=\"$PATH:/opt/homebrew/bin:/usr/local/bin:$HOME/.volta/bin:$HOME/.local/bin\"\nif [ -s \"$HOME/.nvm/nvm.sh\" ]; then . \"$HOME/.nvm/nvm.sh\" >/dev/null 2>&1; fi\nNODE_BIN=\"${NODE:-$(command -v node)}\"\nif [ -z \"$NODE_BIN\" ]; then\n  echo \"error: Node.js bulunamadı. 'brew install node' ile kurun ya da NODE ortam değişkenine yolunu verin.\"\n  exit 1\nfi\n\"$NODE_BIN\" \"$SRCROOT/../MOBIL_ORTAK/scripts/sync.mjs\" ios \"$SRCROOT/PDFStudio/www\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5D1A00000000000000000402 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D1A00000000000000000101 /* AppDelegate.swift in Sources */,
+				5D1A00000000000000000102 /* WebViewController.swift in Sources */,
+				5D1A00000000000000000103 /* SchemeHandler.swift in Sources */,
+				5D1A00000000000000000104 /* NativeBridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5D1A00000000000000000701 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5D1A00000000000000000702 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5D1A00000000000000000703 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PDFStudio/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pdfstudio.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5D1A00000000000000000704 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PDFStudio/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pdfstudio.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5D1A00000000000000000601 /* Build configuration list for PBXProject "PDFStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D1A00000000000000000701 /* Debug */,
+				5D1A00000000000000000702 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5D1A00000000000000000602 /* Build configuration list for PBXNativeTarget "PDFStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D1A00000000000000000703 /* Debug */,
+				5D1A00000000000000000704 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5D1A00000000000000000500 /* Project object */;
+}

@@ -1,0 +1,10 @@
+# Geliştirme aracı ayarları
+.claude/
+# Düzenleyici / sistem
+.idea/
+.vscode/
+*.swp
+.DS_Store
+# CI çıktıları
+dist-mobile/
+Payload/

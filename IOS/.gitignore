@@ -1,0 +1,7 @@
+# Ortak arayüz derleme sırasında MOBIL_ORTAK/web'den kopyalanır
+PDFStudio/www/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.ipa

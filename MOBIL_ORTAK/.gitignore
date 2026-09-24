@@ -1,0 +1,3 @@
+node_modules/
+# npm run vendor ile node_modules'tan üretilir (mupdf.js, tesseract.js)
+web/vendor/

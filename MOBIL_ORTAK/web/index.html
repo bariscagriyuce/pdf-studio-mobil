@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#1c1f26">
+  <title>PDF Studio</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="icon" href="img/icon.png">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <button class="icon-btn" id="btn-menu" aria-label="Menü"></button>
+      <div id="title-wrap">
+        <div id="doc-title">PDF Studio</div>
+        <div id="doc-sub"></div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-undo" aria-label="Geri al"></button>
+        <button class="icon-btn" id="btn-redo" aria-label="Yinele"></button>
+        <button class="icon-btn" id="btn-panels" aria-label="Paneller"></button>
+        <button class="icon-btn" id="btn-search" aria-label="Bul"></button>
+        <button class="icon-btn" id="btn-save" aria-label="Kaydet"></button>
+      </div>
+    </header>
+
+    <div id="searchbar" hidden>
+      <input id="search-input" type="search" placeholder="Belgede ara…" autocomplete="off" enterkeyhint="search">
+      <span id="search-count"></span>
+      <button class="icon-btn" id="search-prev" aria-label="Önceki"></button>
+      <button class="icon-btn" id="search-next" aria-label="Sonraki"></button>
+      <button class="icon-btn" id="search-opts" aria-label="Seçenekler"></button>
+      <button class="icon-btn" id="search-close" aria-label="Kapat"></button>
+    </div>
+
+    <main id="main">
+      <aside id="sidepanel" hidden></aside>
+      <div id="viewer-wrap">
+        <div id="viewer" tabindex="0"><div id="pages"></div></div>
+        <div id="home"></div>
+        <div id="tool-hint" hidden></div>
+        <button id="page-pill" hidden></button>
+        <div id="zoom-pill" hidden></div>
+        <div id="float-actions" hidden></div>
+      </div>
+    </main>
+
+    <nav id="toolbar" hidden>
+      <div id="tool-cats"></div>
+      <div id="tool-row"></div>
+    </nav>
+  </div>
+
+  <div id="drawer" hidden></div>
+  <div id="sheet-root"></div>
+  <div id="toast" hidden></div>
+  <div id="busy" hidden><div class="spinner"></div><div id="busy-text">Çalışıyor…</div></div>
+  <input type="file" id="file-input" hidden>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

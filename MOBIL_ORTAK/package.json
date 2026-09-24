@@ -1,0 +1,21 @@
+{
+  "name": "pdf-studio-mobil-ortak",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PDF Studio mobil sürümlerinin (Android + iOS) ortak motoru ve arayüzü",
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "test": "node test/engine.test.mjs",
+    "serve": "node scripts/serve.mjs",
+    "sync": "node scripts/sync.mjs"
+  },
+  "dependencies": {
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/tur": "1.0.0",
+    "mupdf": "1.28.1",
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "7.0.0"
+  }
+}

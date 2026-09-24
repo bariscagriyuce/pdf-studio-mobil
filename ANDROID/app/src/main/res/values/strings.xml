@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PDF Studio</string>
+    <string name="open_with">PDF Studio ile aç</string>
+    <string name="save_to">Kaydet</string>
+    <string name="share_with">Paylaş</string>
+</resources>

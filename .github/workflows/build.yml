@@ -1,0 +1,231 @@
+name: Mobil derleme
+
+# Ortak motoru sınar, Android APK ve iOS (imzasız) IPA üretir.
+# Elle çalıştırmak için: Actions sekmesi → "Mobil derleme" → Run workflow
+# Sürüm yayımlamak için:  git tag v1.2.3 && git push --tags
+#   → sürüm numarası etiketten okunur, APK/IPA adlarına ve uygulama bilgisine işlenir
+#   → dosyalar Releases sayfasına kalıcı olarak yüklenir (artefaktlar gibi silinmez)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # ============================================================ SÜRÜM
+  version:
+    name: Sürüm numarasını belirle
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      is_release: ${{ steps.v.outputs.is_release }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: v
+        name: Etiketten veya paketten oku
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+            IS_RELEASE=true
+          else
+            # Etiket yoksa depodaki mevcut sürüm kullanılır
+            VERSION=$(node -p "require('./MOBIL_ORTAK/package.json').version")
+            IS_RELEASE=false
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "is_release=$IS_RELEASE" >> "$GITHUB_OUTPUT"
+          echo "### Sürüm: \`$VERSION\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ====================================================== ORTAK MOTOR
+  engine:
+    name: Ortak motor sınaması
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: MOBIL_ORTAK
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: MOBIL_ORTAK/package-lock.json
+
+      - name: Bağımlılıklar
+        run: npm ci --no-audit --no-fund
+
+      - name: Motor sınaması (metin düzenleme, açıklama, form, şifreleme…)
+        run: npm test
+
+  # ============================================================ ANDROID
+  android:
+    name: Android (APK)
+    needs: [version, engine]
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: MOBIL_ORTAK/package-lock.json
+
+      - name: Sürümü dosyalara işle
+        run: node MOBIL_ORTAK/scripts/set_version.mjs "$APP_VERSION"
+
+      - name: Ortak arayüz bağımlılıkları
+        working-directory: MOBIL_ORTAK
+        run: npm ci --no-audit --no-fund && npm run vendor
+
+      - name: Yayın anahtarını hazırla (varsa)
+        # Depo sırları: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+        # ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD. Yoksa APK hata ayıklama
+        # anahtarıyla imzalanır (telefona doğrudan kurulabilir).
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "ANDROID_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          fi
+
+      - name: Derle
+        working-directory: ANDROID
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          bash ./gradlew --no-daemon assembleRelease
+          mkdir -p ../dist-mobile
+          cp app/build/outputs/apk/release/PDFStudio-*-release.apk "../dist-mobile/PDFStudio-${APP_VERSION}.apk"
+          ls -lh ../dist-mobile
+
+      - name: APK içeriğini doğrula
+        run: |
+          APK="dist-mobile/PDFStudio-${APP_VERSION}.apk"
+          unzip -l "$APK" | grep -q "assets/www/index.html"
+          unzip -l "$APK" | grep -q "assets/www/vendor/mupdf/mupdf-wasm.wasm"
+          unzip -l "$APK" | grep -q "assets/www/vendor/tesseract/lang/tur.traineddata"
+          echo "APK içeriği tamam ✔"
+
+      - name: Çıktıyı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: dist-mobile/*.apk
+          if-no-files-found: error
+          retention-days: 90
+
+  # ================================================================ iOS
+  ios:
+    name: iOS (imzasız IPA)
+    needs: [version, engine]
+    # Özel depoda macOS dakikaları 10 kat sayılır: çekme isteklerinde atlanır
+    # (push, etiket ve elle çalıştırmada derlenir)
+    if: github.event_name != 'pull_request'
+    runs-on: macos-latest
+    env:
+      APP_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: MOBIL_ORTAK/package-lock.json
+
+      - name: Sürümü dosyalara işle
+        run: node MOBIL_ORTAK/scripts/set_version.mjs "$APP_VERSION"
+
+      - name: Ortak arayüz bağımlılıkları
+        working-directory: MOBIL_ORTAK
+        run: npm ci --no-audit --no-fund && npm run vendor
+
+      - name: Simülatör için derle (derleme doğrulaması)
+        run: |
+          set -o pipefail
+          xcodebuild -project IOS/PDFStudio.xcodeproj -scheme PDFStudio \
+            -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO build | tail -n 60
+
+      - name: Cihaz için arşivle (imzasız)
+        run: |
+          set -o pipefail
+          xcodebuild -project IOS/PDFStudio.xcodeproj -scheme PDFStudio \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath build/PDFStudio.xcarchive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            archive | tail -n 60
+          APP="build/PDFStudio.xcarchive/Products/Applications/PDFStudio.app"
+          test -f "$APP/www/index.html"
+          test -f "$APP/www/vendor/mupdf/mupdf-wasm.wasm"
+          mkdir -p Payload dist-mobile
+          cp -R "$APP" Payload/
+          zip -qry "dist-mobile/PDFStudio-${APP_VERSION}-unsigned.ipa" Payload
+          ls -lh dist-mobile
+
+      - name: Çıktıyı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: dist-mobile/*.ipa
+          if-no-files-found: error
+          retention-days: 90
+
+  # =========================================================== YAYIMLA
+  release:
+    name: Sürüm yayımla
+    needs: [version, android, ios]
+    if: needs.version.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: cikti
+
+      - name: Dosyaları topla
+        run: |
+          mkdir -p yayin
+          find cikti -type f \( -name '*.apk' -o -name '*.ipa' \) -exec cp {} yayin/ \;
+          cd yayin
+          sha256sum * > SHA256SUMS.txt
+          ls -lh
+          echo "### Yayımlanan dosyalar" >> "$GITHUB_STEP_SUMMARY"
+          ls -lh | tail -n +2 >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: yayin/*
+          generate_release_notes: true
+          body: |
+            ## PDF Studio Mobil ${{ github.ref_name }}
+
+            | Dosya | Platform | Açıklama |
+            |---|---|---|
+            | `PDFStudio-${{ needs.version.outputs.version }}.apk` | Android 8.0+ | Telefona indirip açın ("bilinmeyen kaynaklardan yüklemeye izin ver" istenebilir) |
+            | `PDFStudio-${{ needs.version.outputs.version }}-unsigned.ipa` | iOS / iPadOS 15+ | İmzasız; AltStore / Sideloadly ile kendi Apple kimliğinizle imzalayıp yükleyin |
+
+            `SHA256SUMS.txt` ile dosya bütünlüğünü doğrulayabilirsiniz.
+
+            Her yapı, derleme sırasında ortak motorun sınamasından geçirilmiştir.

@@ -1,0 +1,14 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+.cxx/
+.externalNativeBuild/
+captures/
+# Ortak arayüz derleme sırasında MOBIL_ORTAK/web'den kopyalanır
+app/src/main/assets/www/
+*.keystore
+*.jks
+keystore.properties
