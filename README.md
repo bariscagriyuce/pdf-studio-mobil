@@ -1,5 +1,7 @@
 # YUCE PDF Düzenleyici — Mobil
 
+**Türkçe** · [English](README.en.md) · [Português (Brasil)](README.pt-BR.md)
+
 *YUCE PDF EDITOR*
 
 **Android** ve **iOS / iPadOS** için Adobe Acrobat Pro benzeri PDF düzenleyici.
@@ -22,7 +24,7 @@ dokunmatik kullanıma uyarlanmış bir arayüzle sunar. Tamamen çevrimdışı
 
 > **Arayüz dilleri (1.2.0):** Türkçe, İngilizce ve Brezilya Portekizcesi.
 > Varsayılan olarak cihaz dili kullanılır; **Görünüm → Dil…** veya
-> **Tercihler → Dil** ile anında değiştirilir (belge açık kalır). Sayı ve
+> **Araçlar → Ayarlar… → Dil** ile anında değiştirilir (belge açık kalır). Sayı ve
 > yüzde biçimleri ile uygulama adı seçilen dili izler. Android 13+ sürümünde
 > seçim sistemin *Uygulama dili* ayarına da işlenir; iOS'ta uygulamanın
 > sistem dili *Ayarlar → YUCE PDF → Dil* bölümünden seçilir.
