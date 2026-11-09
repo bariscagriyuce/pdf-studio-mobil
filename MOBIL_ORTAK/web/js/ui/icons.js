@@ -6,6 +6,7 @@ export const PATHS = {
   "open": "M3 6h6l2 2h10v11H3z M3 9h18",
   "save": "M4 4h13l3 3v13H4z M8 4v6h7V4 M8 20v-6h8v6",
   "save-as": "M4 4h12l3 3v8H4z M8 4v5h6V4 M15 21l6-6 M15 15h6v6",
+  "globe": "M12 3a9 9 0 100 18 9 9 0 000-18z M3 12h18 M12 3c3 3 3 15 0 18 M12 3c-3 3-3 15 0 18",
   "print-area": "M3 7V3h4 M17 3h4v4 M21 17v4h-4 M7 21H3v-4 M9 10V7h6v3 M9 16H7v-6h10v6h-2 M9 13h6v5H9z",
   "print": "M7 9V3h10v6 M7 19H4v-8h16v8h-3 M7 15h10v6H7z",
   "close": "M6 6l12 12 M18 6L6 18",

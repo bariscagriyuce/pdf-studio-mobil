@@ -7,6 +7,10 @@
 // içe aktardığı TTF/OTF dosyalarını da kaydeder.
 
 import { mu } from "./mu.js";
+import { EngineError } from "./engine.js";
+
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
 
 export const BUNDLED = [
   ["Liberation Sans", false, false, "LiberationSans-Regular.ttf"],
@@ -157,7 +161,7 @@ export class FontManager {
 
   registerUserFont(id, bytes) {
     const info = readNameTable(bytes);
-    if (!info) throw new Error("Yazı tipi dosyası okunamadı");
+    if (!info) throw new Error(N_("Yazı tipi dosyası okunamadı"));
     const low = info.style.toLowerCase();
     const entry = {
       family: info.family, style: info.style, id, file: "user:" + id, source: "user",
@@ -220,7 +224,7 @@ export class FontManager {
 
   async ensure(spec) {
     if (spec.kind !== "ttf" || this._bytes.has(spec.file)) return;
-    if (spec.file.startsWith("user:")) throw new Error("Kullanıcı yazı tipi yüklenmemiş: " + spec.family);
+    if (spec.file.startsWith("user:")) throw new EngineError(N_("Kullanıcı yazı tipi yüklenmemiş: {name}"), "font", { name: spec.family });
     this._bytes.set(spec.file, await this.loadBytes(spec.file));
   }
 
@@ -235,7 +239,7 @@ export class FontManager {
       if (spec.kind === "base14") f = new mu.Font(spec.name);
       else {
         const data = this._bytes.get(spec.file);
-        if (!data) throw new Error("Yazı tipi yüklenmedi: " + spec.file);
+        if (!data) throw new EngineError(N_("Yazı tipi yüklenmedi: {name}"), "font", { name: spec.file });
         f = new mu.Font(spec.family.replace(/\s+/g, ""), data);
       }
       this._mu.set(spec.key, f);

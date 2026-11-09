@@ -5,14 +5,15 @@
 import { $, h, toast, form, confirmBox, promptBox, escapeHtml } from "./ui.js";
 import { icon } from "./icons.js";
 import { cssColorOf } from "./colors.js";
+import { t, tn, N_ } from "../i18n.js";
 
 const TABS = [
-  ["thumbs", "thumbnails", "Sayfalar"],
-  ["toc", "bookmark", "Yer imleri"],
-  ["annots", "comment", "Açıklamalar"],
-  ["search", "search", "Arama"],
-  ["forms", "form", "Formlar"],
-  ["images", "image", "Görüntüler"],
+  ["thumbs", "thumbnails", N_("Sayfalar")],
+  ["toc", "bookmark", N_("Yer imleri")],
+  ["annots", "comment", N_("Açıklamalar")],
+  ["search", "search", N_("Arama")],
+  ["forms", "form", N_("Formlar")],
+  ["images", "image", N_("Görüntüler")],
 ];
 
 export class Panels {
@@ -81,7 +82,7 @@ export class Panels {
 
   onPageChange(pno) {
     if (!this.isOpen || this.tab !== "thumbs") return;
-    for (const t of this.el.querySelectorAll(".thumb")) t.classList.toggle("cur", +t.dataset.pno === pno);
+    for (const el of this.el.querySelectorAll(".thumb")) el.classList.toggle("cur", +el.dataset.pno === pno);
     const cur = this.el.querySelector(`.thumb[data-pno="${pno}"]`);
     if (cur && !this._dragging) cur.scrollIntoView({ block: "nearest" });
   }
@@ -96,9 +97,9 @@ export class Panels {
     el.innerHTML = "";
     const tabs = h("div", { class: "panel-tabs" });
     for (const [id, ic, label] of TABS) {
-      tabs.append(h("button", { class: id === this.tab ? "on" : "", title: label, "aria-label": label, html: icon(ic), onclick: () => { this.tab = id; this.picked.clear(); this.render(); } }));
+      tabs.append(h("button", { class: id === this.tab ? "on" : "", title: t(label), "aria-label": t(label), html: icon(ic), onclick: () => { this.tab = id; this.picked.clear(); this.render(); } }));
     }
-    tabs.append(h("span", { class: "spacer" }), h("button", { title: "Kapat", "aria-label": "Kapat", html: icon("close"), onclick: () => this.close() }));
+    tabs.append(h("span", { class: "spacer" }), h("button", { title: t("Kapat"), "aria-label": t("Kapat"), html: icon("close"), onclick: () => this.close() }));
     el.append(tabs);
     const head = h("div", { class: "panel-head" });
     const body = h("div", { class: "panel-body" });
@@ -111,35 +112,35 @@ export class Panels {
   renderThumbs(head, body) {
     const n = this.app.viewer.pages.length;
     const picked = this.picked.size;
-    head.append(h("span", { class: "grow" }, picked ? `${picked} sayfa seçili` : `${n} sayfa`));
+    head.append(h("span", { class: "grow" }, picked ? tn("{n} sayfa seçili", picked) : tn("{n} sayfa", n)));
     if (picked) {
       const cmd = (label, id) => h("button", { onclick: () => this.app.commands.run(id) }, label);
-      head.append(cmd("Döndür", "rot_right"), cmd("Çoğalt", "page_dup"), cmd("Çıkar", "page_extract"), cmd("Sil", "page_delete"), h("button", { onclick: () => this.clearPicked() }, "✕"));
+      head.append(cmd(t("Döndür"), "rot_right"), cmd(t("Çoğalt"), "page_dup"), cmd(t("Çıkar"), "page_extract"), cmd(t("Sil"), "page_delete"), h("button", { onclick: () => this.clearPicked() }, "✕"));
     } else {
-      head.append(h("button", { onclick: () => { this.picked = new Set([...Array(n).keys()]); this.render(); } }, "Tümünü seç"));
+      head.append(h("button", { onclick: () => { this.picked = new Set([...Array(n).keys()]); this.render(); } }, t("Tümünü seç")));
     }
     const grid = h("div", { class: "thumbs" });
-    body.append(grid, h("div", { class: "hint", style: { padding: "10px 6px" } }, "Dokun: sayfaya git · Basılı tut: seç · Seçiliyken sürükle: taşı"));
+    body.append(grid, h("div", { class: "hint", style: { padding: "10px 6px" } }, t("Dokun: sayfaya git · Basılı tut: seç · Seçiliyken sürükle: taşı")));
     this.observer?.disconnect();
     this.observer = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) this._drawThumb(+e.target.dataset.pno);
     }, { root: body, rootMargin: "200px" });
     for (let i = 0; i < n; i++) {
       const p = this.app.viewer.pages[i];
-      const t = h("div", { class: "thumb" + (i === this.app.viewer.current ? " cur" : "") + (this.picked.has(i) ? " picked" : ""), "data-pno": i });
+      const th = h("div", { class: "thumb" + (i === this.app.viewer.current ? " cur" : "") + (this.picked.has(i) ? " picked" : ""), "data-pno": i });
       const w = 96, hh = Math.round((96 * p.height) / p.width);
       const c = h("canvas", { width: 2, height: 2, style: { width: w + "px", height: hh + "px" } });
-      t.append(c, h("small", {}, p.label && p.label !== String(i + 1) ? `${p.label} (${i + 1})` : String(i + 1)));
-      this._thumbEvents(t, i);
-      grid.append(t);
-      this.observer.observe(t);
+      th.append(c, h("small", {}, p.label && p.label !== String(i + 1) ? `${p.label} (${i + 1})` : String(i + 1)));
+      this._thumbEvents(th, i);
+      grid.append(th);
+      this.observer.observe(th);
     }
   }
 
   async _drawThumb(pno, force = false) {
-    const t = this.el.querySelector(`.thumb[data-pno="${pno}"]`);
-    if (!t) return;
-    const c = t.querySelector("canvas");
+    const th = this.el.querySelector(`.thumb[data-pno="${pno}"]`);
+    if (!th) return;
+    const c = th.querySelector("canvas");
     if (!force && c.dataset.done) return;
     c.dataset.done = "1";
     try {
@@ -150,9 +151,9 @@ export class Panels {
     } catch { /* belge değişmiş olabilir */ }
   }
 
-  _thumbEvents(t, i) {
+  _thumbEvents(th, i) {
     let timer = null, start = null, moved = false, longFired = false;
-    t.addEventListener("pointerdown", (e) => {
+    th.addEventListener("pointerdown", (e) => {
       start = { x: e.clientX, y: e.clientY };
       moved = false;
       longFired = false;
@@ -165,17 +166,17 @@ export class Panels {
         longFired = true;
         navigator.vibrate?.(10);
         this.picked.add(i);
-        t.classList.add("picked");
+        th.classList.add("picked");
         this.render();
       }, 450);
     });
-    t.addEventListener("pointermove", (e) => {
+    th.addEventListener("pointermove", (e) => {
       if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) {
         moved = true;
         clearTimeout(timer);
       }
     });
-    t.addEventListener("pointerup", () => {
+    th.addEventListener("pointerup", () => {
       clearTimeout(timer);
       if (moved || longFired || this._dragging) return;
       if (this.picked.size) {
@@ -186,8 +187,8 @@ export class Panels {
         this._afterPick();
       }
     });
-    t.addEventListener("pointercancel", () => clearTimeout(timer));
-    t.addEventListener("contextmenu", (e) => e.preventDefault());
+    th.addEventListener("pointercancel", () => clearTimeout(timer));
+    th.addEventListener("contextmenu", (e) => e.preventDefault());
   }
 
   _startDrag(e, i) {
@@ -205,7 +206,7 @@ export class Panels {
       }
       if (!active) return;
       ev.preventDefault();
-      for (const t of grid.children) t.classList.remove("drop-before");
+      for (const el of grid.children) el.classList.remove("drop-before");
       const under = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(".thumb");
       if (under) {
         const r = under.getBoundingClientRect();
@@ -245,29 +246,29 @@ export class Panels {
   // ------------------------------------------------------------- yer imleri
   async renderToc(head, body) {
     const toc = await this.app.engine.call("getToc");
-    head.append(h("span", { class: "grow" }, `${toc.length} yer imi`), h("button", { onclick: () => this.addBookmark() }, "+ Ekle"));
+    head.append(h("span", { class: "grow" }, `${toc.length} yer imi`), h("button", { onclick: () => this.addBookmark() }, t("+ Ekle")));
     if (!toc.length) {
-      body.append(h("div", { class: "empty" }, "Belgede yer imi yok. “+ Ekle” ile geçerli sayfaya yer imi ekleyin."));
+      body.append(h("div", { class: "empty" }, t("Belgede yer imi yok. “+ Ekle” ile geçerli sayfaya yer imi ekleyin.")));
       return;
     }
     toc.forEach((e, i) => {
       const item = h("button", {
         class: "list-item", style: { paddingLeft: 8 + (e.level - 1) * 16 + "px" },
-        html: icon("bookmark") + `<span class="grow"><span>${escapeHtml(e.title || "(adsız)")}</span></span><span class="meta">${e.page >= 0 ? e.page + 1 : ""}</span>`,
+        html: icon("bookmark") + `<span class="grow"><span>${escapeHtml(e.title || t("(adsız)"))}</span></span><span class="meta">${e.page >= 0 ? e.page + 1 : ""}</span>`,
         onclick: () => { if (e.page >= 0) { this.app.viewer.goto(e.page); this._afterPick(); } },
       });
       item.addEventListener("contextmenu", (ev) => { ev.preventDefault(); this.editBookmark(toc, i); });
-      let t = null;
-      item.addEventListener("pointerdown", () => { t = setTimeout(() => { t = null; this.editBookmark(toc, i); }, 500); });
-      item.addEventListener("pointerup", () => clearTimeout(t));
-      item.addEventListener("pointercancel", () => clearTimeout(t));
+      let timer = null;
+      item.addEventListener("pointerdown", () => { timer = setTimeout(() => { timer = null; this.editBookmark(toc, i); }, 500); });
+      item.addEventListener("pointerup", () => clearTimeout(timer));
+      item.addEventListener("pointercancel", () => clearTimeout(timer));
       body.append(item);
     });
-    body.append(h("div", { class: "hint", style: { padding: "10px 6px" } }, "Basılı tutun: yeniden adlandır, düzey değiştir, sil"));
+    body.append(h("div", { class: "hint", style: { padding: "10px 6px" } }, t("Basılı tutun: yeniden adlandır, düzey değiştir, sil")));
   }
 
   async addBookmark() {
-    const title = await promptBox("Yer imi ekle", `Başlık (sayfa ${this.app.viewer.current + 1})`, `Sayfa ${this.app.viewer.current + 1}`);
+    const title = await promptBox(t("Yer imi ekle"), t("Başlık (sayfa {n})", { n: this.app.viewer.current + 1 }), t("Sayfa {n}", { n: this.app.viewer.current + 1 }));
     if (!title) return;
     const toc = await this.app.engine.call("getToc");
     const pno = this.app.viewer.current;
@@ -281,12 +282,12 @@ export class Panels {
 
   async editBookmark(toc, i) {
     const e = toc[i];
-    const v = await form("Yer imini düzenle", [
-      { key: "title", label: "Başlık", value: e.title },
-      { key: "page", type: "number", label: "Sayfa", value: e.page + 1, min: 1, max: this.app.viewer.pages.length },
-      { key: "level", type: "number", label: "Düzey (1 = en üst)", value: e.level, min: 1, max: 8 },
-      { key: "del", type: "check", label: "Bu yer imini sil" },
-    ], { ok: "Kaydet" });
+    const v = await form(t("Yer imini düzenle"), [
+      { key: "title", label: t("Başlık"), value: e.title },
+      { key: "page", type: "number", label: t("Sayfa"), value: e.page + 1, min: 1, max: this.app.viewer.pages.length },
+      { key: "level", type: "number", label: t("Düzey (1 = en üst)"), value: e.level, min: 1, max: 8 },
+      { key: "del", type: "check", label: t("Bu yer imini sil") },
+    ], { ok: t("Kaydet") });
     if (!v) return;
     if (v.del) toc.splice(i, 1);
     else toc[i] = { level: Math.max(1, Math.min(i === 0 ? 1 : toc[i - 1].level + 1, v.level || 1)), title: v.title, page: Math.max(0, Math.min(this.app.viewer.pages.length - 1, (v.page || 1) - 1)) };
@@ -297,10 +298,10 @@ export class Panels {
   // ------------------------------------------------------------ açıklamalar
   async renderAnnots(head, body) {
     const list = await this.app.engine.call("allAnnots");
-    head.append(h("span", { class: "grow" }, `${list.length} açıklama`));
-    if (list.length) head.append(h("button", { onclick: () => this.app.commands.run("clear_annots") }, "Tümünü kaldır"));
+    head.append(h("span", { class: "grow" }, tn("{n} açıklama", list.length)));
+    if (list.length) head.append(h("button", { onclick: () => this.app.commands.run("clear_annots") }, t("Tümünü kaldır")));
     if (!list.length) {
-      body.append(h("div", { class: "empty" }, "Belgede açıklama yok."));
+      body.append(h("div", { class: "empty" }, t("Belgede açıklama yok.")));
       return;
     }
     let lastPage = -1;
@@ -312,7 +313,7 @@ export class Panels {
       const sw = a.color && a.color.length ? `<span class="swatch" style="background:${cssColorOf(a.color)}"></span>` : `<span class="swatch"></span>`;
       body.append(h("button", {
         class: "list-item",
-        html: sw + `<span class="grow"><span>${escapeHtml(a.typeName)}${a.author ? " — " + escapeHtml(a.author) : ""}</span><span class="meta">${escapeHtml((a.content || "").slice(0, 80) || a.modified || "")}</span></span>`,
+        html: sw + `<span class="grow"><span>${escapeHtml(t(a.typeName))}${a.author ? " — " + escapeHtml(a.author) : ""}</span><span class="meta">${escapeHtml((a.content || "").slice(0, 80) || a.modified || "")}</span></span>`,
         onclick: () => {
           this.app.viewer.revealRect(a.pno, a.rect);
           this.app.setTool("select");
@@ -326,18 +327,18 @@ export class Panels {
   // ------------------------------------------------------------------ arama
   renderSearch(head, body) {
     const s = this.app.search;
-    const input = h("input", { type: "search", placeholder: "Belgede ara…", value: s.query, enterkeyhint: "search" });
+    const input = h("input", { type: "search", placeholder: t("Belgede ara…"), value: s.query, enterkeyhint: "search" });
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") this.app.runSearch(input.value); });
     head.append(input);
     if (!s.query) {
-      body.append(h("div", { class: "empty" }, "Aramak için bir metin yazıp Enter'a basın."));
+      body.append(h("div", { class: "empty" }, t("Aramak için bir metin yazıp Enter'a basın.")));
       return;
     }
-    body.append(h("div", { class: "hint", style: { padding: "4px 6px" } }, `${s.hits.length} sonuç`));
+    body.append(h("div", { class: "hint", style: { padding: "4px 6px" } }, tn("{n} sonuç", s.hits.length)));
     s.hits.slice(0, 1000).forEach((hit, i) => {
       body.append(h("button", {
         class: "list-item" + (i === s.index ? " on" : ""),
-        html: `<span class="meta" style="min-width:34px">s.${hit.pno + 1}</span><span class="grow"><span>${escapeHtml(hit.context)}</span></span>`,
+        html: `<span class="meta" style="min-width:34px">${t("s.{n}", { n: hit.pno + 1 })}</span><span class="grow"><span>${escapeHtml(hit.context)}</span></span>`,
         onclick: () => { this.app.gotoHit(i); this._afterPick(); },
       }));
     });
@@ -348,18 +349,18 @@ export class Panels {
     const fields = await this.app.engine.call("listFields", null);
     head.append(h("span", { class: "grow" }, `${fields.length} alan`));
     if (!fields.length) {
-      body.append(h("div", { class: "empty" }, "Belgede form alanı yok. “Form” araçlarıyla alan ekleyebilirsiniz."));
+      body.append(h("div", { class: "empty" }, t("Belgede form alanı yok. “Form” araçlarıyla alan ekleyebilirsiniz.")));
       return;
     }
     head.append(h("button", { onclick: () => this.app.commands.run("form_export") }, "JSON"));
     for (const f of fields) {
       const val = f.type === "checkbox" || f.type === "radiobutton" ? (f.value && f.value !== "Off" ? "☑" : "☐") : f.value || "—";
       const item = h("div", { class: "list-item" },
-        h("span", { class: "grow" }, h("span", {}, f.label || f.name), h("span", { class: "meta" }, `${f.typeName} · s.${f.pno + 1}${f.required ? " · zorunlu" : ""}${f.readonly ? " · salt okunur" : ""}`)),
+        h("span", { class: "grow" }, h("span", {}, f.label || f.name), h("span", { class: "meta" }, `${t(f.typeName)} · ${t("s.{n}", { n: f.pno + 1 })}${f.required ? t(" · zorunlu") : ""}${f.readonly ? t(" · salt okunur") : ""}`)),
         h("span", { class: "meta", style: { maxWidth: "40%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, val),
-        h("button", { class: "icon-btn", title: "Sil", html: icon("trash"), onclick: async (e) => {
+        h("button", { class: "icon-btn", title: t("Sil"), html: icon("trash"), onclick: async (e) => {
           e.stopPropagation();
-          if (await confirmBox("Alanı sil", `“${f.name}” alanı silinsin mi?`, { ok: "Sil", danger: true })) {
+          if (await confirmBox(t("Alanı sil"), t("“{name}” alanı silinsin mi?", { name: f.name }), { ok: t("Sil"), danger: true })) {
             await this.app.commands.call("deleteField", f.pno, f.id);
           }
         } }),
@@ -377,10 +378,10 @@ export class Panels {
   // ---------------------------------------------------------------- görüntüler
   async renderImages(head, body) {
     const list = await this.app.engine.call("allImages");
-    head.append(h("span", { class: "grow" }, `${list.length} görüntü`));
-    if (list.length) head.append(h("button", { onclick: () => this.app.commands.run("export_all_images") }, "Tümünü dışa aktar"));
+    head.append(h("span", { class: "grow" }, tn("{n} görüntü", list.length)));
+    if (list.length) head.append(h("button", { onclick: () => this.app.commands.run("export_all_images") }, t("Tümünü dışa aktar")));
     if (!list.length) {
-      body.append(h("div", { class: "empty" }, "Belgede görüntü yok."));
+      body.append(h("div", { class: "empty" }, t("Belgede görüntü yok.")));
       return;
     }
     for (const im of list) {

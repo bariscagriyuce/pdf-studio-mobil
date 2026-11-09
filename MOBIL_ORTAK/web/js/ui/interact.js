@@ -6,6 +6,7 @@ import { toast } from "./ui.js";
 import { settings } from "./store.js";
 import { T, RECT_TOOLS, LINE_TOOLS, MARKUP_TOOLS, TAP_SIZES } from "./tools.js";
 import { cssColorOf } from "./colors.js";
+import { t, errText } from "../i18n.js";
 
 const TAP_SLOP = 8; // px
 const LONG_PRESS = 450; // ms
@@ -66,7 +67,7 @@ export class Interaction {
   down(e) {
     if (!this.app.isOpen || e.button > 0) return;
     this.pointers.set(e.pointerId, e.pointerType);
-    const touches = [...this.pointers.values()].filter((t) => t === "touch").length;
+    const touches = [...this.pointers.values()].filter((pt) => pt === "touch").length;
     if (e.pointerType === "touch" && touches > 1) {
       // İkinci parmak: yakınlaştırma/kaydırma görüntüleyicide; araç hareketini bırak
       if (this.g && this.g.kind === "ink" && this.g.pts.length < 4) this.cancel();
@@ -411,7 +412,7 @@ export class Interaction {
         }
       }
     } catch (err) {
-      toast(err.message || String(err), { error: true });
+      toast(errText(err), { error: true });
     }
   }
 

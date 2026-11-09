@@ -5,6 +5,7 @@ export class EngineError extends Error {
   constructor(info) {
     super(info.message);
     this.code = info.code;
+    this.params = info.params || null;
   }
 }
 

@@ -67,6 +67,9 @@ final class NativeBridge: NSObject, WKScriptMessageHandler, UIDocumentPickerDele
             reply(id, NSNull())
         case "setDirty", "backResult":
             break // iOS'ta geri tuşu yok; kirli durum bilgisi şimdilik kullanılmıyor
+        case "setLanguage":
+            // iOS uygulama dilini çalışırken değiştirmeye izin vermez (Ayarlar → uygulama → Dil)
+            reply(id, NSNull())
         case "appInfo":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
             reply(id, ["platform": "ios", "version": version, "system": UIDevice.current.systemVersion])

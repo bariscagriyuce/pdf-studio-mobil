@@ -3,6 +3,7 @@
 // motora kaydeder.
 
 import { toast } from "./ui.js";
+import { t, errText } from "../i18n.js";
 
 const DB = "pdfstudio-fonts";
 const STORE = "fonts";
@@ -18,10 +19,10 @@ function openDb() {
 
 function tx(db, mode, fn) {
   return new Promise((resolve, reject) => {
-    const t = db.transaction(STORE, mode);
-    const out = fn(t.objectStore(STORE));
-    t.oncomplete = () => resolve(out && out.result !== undefined ? out.result : out);
-    t.onerror = () => reject(t.error);
+    const tr = db.transaction(STORE, mode);
+    const out = fn(tr.objectStore(STORE));
+    tr.oncomplete = () => resolve(out && out.result !== undefined ? out.result : out);
+    tr.onerror = () => reject(t.error);
   });
 }
 
@@ -35,8 +36,8 @@ export class FontStore {
     try {
       const db = await openDb();
       const req = await new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, "readonly");
-        const r = t.objectStore(STORE).getAll();
+        const tr = db.transaction(STORE, "readonly");
+        const r = tr.objectStore(STORE).getAll();
         r.onsuccess = () => resolve(r.result);
         r.onerror = () => reject(r.error);
       });
@@ -64,7 +65,7 @@ export class FontStore {
         ok++;
         toast(`Eklendi: ${info.family} ${info.style || ""}`);
       } catch (e) {
-        toast(`${f.name}: ${e.message}`, { error: true });
+        toast(`${f.name}: ${errText(e)}`, { error: true });
       }
     }
     if (ok) await this.app.refreshFonts();

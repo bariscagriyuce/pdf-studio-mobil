@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YUCE PDF EDITOR</string>
+    <string name="share_with">Compartilhar</string>
+    <string name="no_app_for_link">Nenhum aplicativo pode abrir este link</string>
+</resources>

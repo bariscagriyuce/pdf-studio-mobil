@@ -7,7 +7,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.app.LocaleManager
 import android.os.Build
+import android.os.LocaleList
 import android.os.Handler
 import android.os.Looper
 import android.print.PrintAttributes
@@ -118,6 +120,7 @@ class NativeBridge(private val activity: MainActivity) {
                     reply(id, JSONObject.NULL)
                 }
                 "setTheme" -> { activity.setDarkUi(msg.optBoolean("dark")); reply(id, JSONObject.NULL) }
+                "setLanguage" -> reply(id, setAppLanguage(msg.optString("lang", "system")))
                 "setDirty" -> Unit
                 "backResult" -> if (!msg.optBoolean("handled")) activity.finish()
                 "appInfo" -> {
@@ -315,13 +318,29 @@ class NativeBridge(private val activity: MainActivity) {
     }
 
     // ---------------------------------------------------------------- diğer
+    /**
+     * Arayüzde seçilen dili uygulamanın sistem diline de uygular (Android 13+):
+     * paylaşım/yazdırma pencereleri ve başlatıcıdaki ad aynı dilde görünür.
+     * "locale" yapılandırma değişikliği manifestte karşılandığı için etkinlik
+     * yeniden başlamaz, açık belge korunur.
+     */
+    private fun setAppLanguage(lang: String): Any {
+        if (Build.VERSION.SDK_INT < 33) return JSONObject.NULL
+        val tag = when (lang) { "tr" -> "tr"; "en" -> "en"; "pt_BR" -> "pt-BR"; else -> "" }
+        val lm = activity.getSystemService(LocaleManager::class.java) ?: return JSONObject.NULL
+        lm.applicationLocales = if (tag.isEmpty()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
+        // Gerçek cihaz dili: WebView'in navigator.language değeri artık uygulama dilini gösterir
+        val sys = lm.systemLocales
+        return JSONObject().put("system", if (sys.isEmpty) "" else sys[0].toLanguageTag())
+    }
+
     fun openExternal(url: String) {
         val uri = Uri.parse(url)
         if (uri.scheme !in setOf("http", "https", "mailto", "tel")) return
         try {
             activity.startActivity(Intent(Intent.ACTION_VIEW, uri))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(activity, "Bu bağlantıyı açacak uygulama yok", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(R.string.no_app_for_link), Toast.LENGTH_SHORT).show()
         }
     }
 

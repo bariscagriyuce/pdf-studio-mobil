@@ -65,7 +65,7 @@ export async function handle(method, args) {
 }
 
 export function errorInfo(e) {
-  return { message: (e && e.message) || String(e), code: (e && e.code) || "error", state: engine.state() };
+  return { message: (e && (e.key || e.message)) || String(e), code: (e && e.code) || "error", params: (e && e.params) || null, state: engine.state() };
 }
 
 export { transferables };

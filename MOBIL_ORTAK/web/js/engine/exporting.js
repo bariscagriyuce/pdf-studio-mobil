@@ -8,13 +8,16 @@ import { withPage, resolveStyle } from "./textedit.js";
 import { PageWriter } from "./writer.js";
 import { subsetBytes } from "./pageops.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const TEXT_MODES = {
-  "Düz metin (.txt)": ["text", "txt"],
+  [N_("Düz metin (.txt)")]: ["text", "txt"],
   "HTML (.html)": ["html", "html"],
   "XHTML (.xhtml)": ["xhtml", "xhtml"],
   "XML (.xml)": ["xml", "xml"],
   "JSON (.json)": ["json", "json"],
-  "Markdown benzeri (.md)": ["md", "md"],
+  [N_("Markdown benzeri (.md)")]: ["md", "md"],
 };
 
 export const IMAGE_FORMATS = ["png", "jpg", "webp", "pam"];

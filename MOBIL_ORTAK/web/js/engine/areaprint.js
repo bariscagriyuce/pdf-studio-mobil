@@ -16,6 +16,9 @@ import * as G from "./geom.js";
 import { PageWriter, pageToXObject } from "./writer.js";
 import { EngineError } from "./engine.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const FIT = "fit"; // kâğıda sığdır (büyüt/küçült)
 export const ACTUAL = "actual"; // gerçek boyut (%100)
 export const CUSTOM = "custom"; // özel ölçek
@@ -24,11 +27,11 @@ export const CUSTOM = "custom"; // özel ölçek
 export const MARK_MARGIN_PT = (7.5 * 72) / 25.4;
 
 export const PAPERS = {
-  "A4 (210 × 297 mm)": [595, 842],
-  "A5 (148 × 210 mm)": [420, 595],
-  "A3 (297 × 420 mm)": [842, 1191],
-  "Letter (8,5 × 11 inç)": [612, 792],
-  "Legal (8,5 × 14 inç)": [612, 1008],
+  [N_("A4 (210 × 297 mm)")]: [595, 842],
+  [N_("A5 (148 × 210 mm)")]: [420, 595],
+  [N_("A3 (297 × 420 mm)")]: [842, 1191],
+  [N_("Letter (8,5 × 11 inç)")]: [612, 792],
+  [N_("Legal (8,5 × 14 inç)")]: [612, 1008],
 };
 
 /** Alanın kâğıt üzerindeki konumu → [x, y, genişlik, yükseklik] (nokta) */
@@ -122,7 +125,7 @@ export function areaPdf(E, items, opts = {}) {
       w.commit();
       n++;
     }
-    if (!n) throw new EngineError("Yazdırılacak geçerli bir alan yok", "area");
+    if (!n) throw new EngineError(N_("Yazdırılacak geçerli bir alan yok"), "area");
     return out.saveToBuffer("garbage=compact,compress").asUint8Array().slice();
   } finally {
     out.destroy();

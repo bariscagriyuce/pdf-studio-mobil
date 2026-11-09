@@ -7,6 +7,7 @@ import { settings, saveSettings, addRecent, removeRecent } from "./store.js";
 import { Viewer } from "./viewer.js";
 import { T, CATEGORIES, LABELS, SHORT, ICONS, HINTS, DRAW_TOOLS } from "./tools.js";
 import { appName } from "../branding.js";
+import { t, tn, num, pct, locale, setLanguage, setSystemLocale, currentLanguage, N_, errText } from "../i18n.js";
 
 export class App {
   constructor(engine, bridge) {
@@ -69,6 +70,7 @@ export class App {
       b.innerHTML = icon(ic);
       b.onclick = fn;
     };
+    this._labelTopbar();
     set("#btn-menu", "menu", () => this.commands.openDrawer());
     set("#btn-undo", "undo", () => this.commands.run("undo"));
     set("#btn-redo", "redo", () => this.commands.run("redo"));
@@ -76,7 +78,7 @@ export class App {
     set("#btn-search", "search", () => this.commands.run("find"));
     set("#btn-save", "save", () => this.commands.run("save"));
     $("#page-pill").onclick = () => this.commands.run("goto");
-    // arama çubuğu
+    // arama çubuğu (etiketler _labelTopbar'da)
     set("#search-prev", "chevron-up", () => this.searchStep(-1));
     set("#search-next", "chevron-down", () => this.searchStep(1));
     set("#search-opts", "settings", () => this.searchOptions());
@@ -96,14 +98,58 @@ export class App {
     });
   }
 
+  /** index.html'deki erişilebilirlik etiketleri ve yer tutucular (dil değişince de) */
+  _labelTopbar() {
+    const labels = {
+      "#btn-menu": N_("Menü"), "#btn-undo": N_("Geri al"), "#btn-redo": N_("Yinele"), "#btn-panels": N_("Paneller"),
+      "#btn-search": N_("Bul"), "#btn-save": N_("Kaydet"), "#search-prev": N_("Önceki"), "#search-next": N_("Sonraki"),
+      "#search-opts": N_("Seçenekler"), "#search-close": N_("Kapat"),
+    };
+    for (const [id, label] of Object.entries(labels)) {
+      $(id).setAttribute("aria-label", t(label));
+      $(id).title = t(label);
+    }
+    $("#search-input").placeholder = t("Belgede ara…");
+  }
+
+  /** Arayüz dilini değiştirir ve kaydeder ("system", "tr", "en", "pt_BR"). */
+  setLanguage(pref) {
+    settings.language = pref;
+    saveSettings();
+    setLanguage(pref);
+    this.relocalize();
+    if (!this.bridge.native) return;
+    this.bridge
+      .call("setLanguage", { lang: pref })
+      .then((r) => {
+        if (!r || !r.system) return;
+        setSystemLocale(r.system);
+        // "Sistem" seçildiyse ve cihaz dili WebView'in sandığından farklıysa düzelt
+        if (settings.language === pref && setLanguage(pref) !== this._shownLanguage) this.relocalize();
+      })
+      .catch(() => {});
+  }
+
+  /** Dil değişti: kalıcı arayüz parçalarını yeni dilde yeniden kur. */
+  relocalize() {
+    this._shownLanguage = currentLanguage();
+    document.title = appName();
+    this._labelTopbar();
+    this._buildToolbar();
+    this.renderHome();
+    this.updateState(this.engine.state);
+    this.updateFloat();
+    this.commands?.panels?.isOpen && this.commands.panels.render();
+  }
+
   updateState(state) {
     const open = !!state.open && !!this.doc;
     $("#doc-title").textContent = open ? state.name : appName();
     $("#doc-title").classList.toggle("dirty", open && state.dirty);
     $("#btn-undo").disabled = !state.canUndo;
     $("#btn-redo").disabled = !state.canRedo;
-    $("#btn-undo").title = state.canUndo ? `Geri al: ${state.undoLabel}` : "Geri al";
-    $("#btn-redo").title = state.canRedo ? `Yinele: ${state.redoLabel}` : "Yinele";
+    $("#btn-undo").title = state.canUndo ? t("Geri al: {label}", { label: t(state.undoLabel) }) : t("Geri al");
+    $("#btn-redo").title = state.canRedo ? t("Yinele: {label}", { label: t(state.redoLabel) }) : t("Yinele");
     for (const id of ["#btn-undo", "#btn-redo", "#btn-panels", "#btn-search", "#btn-save"]) $(id).hidden = !open;
     $("#toolbar").hidden = !open;
     $("#page-pill").hidden = !open;
@@ -119,7 +165,7 @@ export class App {
     }
     const n = this.viewer.pages.length;
     const z = Math.round(this.viewer.zoom * 100);
-    $("#doc-sub").textContent = `${n} sayfa · %${z}${this.tool !== T.SELECT ? " · " + LABELS[this.tool] : ""}`;
+    $("#doc-sub").textContent = tn("{n} sayfa", n) + " · " + pct(z) + (this.tool !== T.SELECT ? " · " + t(LABELS[this.tool]) : "");
     $("#page-pill").textContent = `${this.viewer.current + 1} / ${n}`;
   }
 
@@ -130,7 +176,7 @@ export class App {
 
   onZoom(z, live = false) {
     const pill = $("#zoom-pill");
-    pill.textContent = `%${Math.round(z * 100)}`;
+    pill.textContent = pct(Math.round(z * 100));
     pill.hidden = false;
     clearTimeout(this._zoomTimer);
     this._zoomTimer = setTimeout(() => { pill.hidden = true; }, live ? 900 : 700);
@@ -145,7 +191,7 @@ export class App {
     const cats = $("#tool-cats");
     cats.innerHTML = "";
     for (const c of CATEGORIES) {
-      cats.append(h("button", { "data-cat": c.id, onclick: () => this.setCategory(c.id) }, c.label));
+      cats.append(h("button", { "data-cat": c.id, onclick: () => this.setCategory(c.id) }, t(c.label)));
     }
     this.setCategory(this.category);
   }
@@ -160,9 +206,9 @@ export class App {
       if (item.startsWith("cmd:")) {
         const cmd = this.commands.get(item.slice(4));
         if (!cmd) continue;
-        row.append(h("button", { class: "tool-btn", title: cmd.label, html: icon(cmd.icon || "info") + `<span>${escapeHtml(cmd.short || cmd.label)}</span>`, onclick: () => this.commands.run(cmd.id) }));
+        row.append(h("button", { class: "tool-btn", title: t(cmd.label), html: icon(cmd.icon || "info") + `<span>${escapeHtml(t(cmd.short || cmd.label))}</span>`, onclick: () => this.commands.run(cmd.id) }));
       } else {
-        const b = h("button", { class: "tool-btn", "data-tool": item, title: LABELS[item], html: icon(ICONS[item]) + `<span>${SHORT[item]}</span>`, onclick: () => this.setTool(this.tool === item && item !== T.SELECT ? T.SELECT : item) });
+        const b = h("button", { class: "tool-btn", "data-tool": item, title: t(LABELS[item]), html: icon(ICONS[item]) + `<span>${escapeHtml(t(SHORT[item]))}</span>`, onclick: () => this.setTool(this.tool === item && item !== T.SELECT ? T.SELECT : item) });
         row.append(b);
       }
     }
@@ -184,7 +230,7 @@ export class App {
     this._syncToolButtons();
     const hint = $("#tool-hint");
     if (tool !== T.SELECT && tool !== T.PAN && HINTS[tool]) {
-      hint.textContent = HINTS[tool];
+      hint.textContent = t(HINTS[tool]);
       hint.hidden = false;
       clearTimeout(this._hintTimer);
       this._hintTimer = setTimeout(() => { hint.hidden = true; }, 4500);
@@ -204,36 +250,36 @@ export class App {
     const acts = [];
     const add = (label, ic, fn, cls = "") => acts.push(h("button", { class: cls, html: icon(ic) + `<span>${label}</span>`, onclick: fn }));
     if (this.selection && this.selection.text) {
-      add("Kopyala", "copy", () => this.commands.run("copy"));
-      add("Vurgula", "highlight", () => this.commands.markupSelection("highlight"));
-      add("Altını çiz", "underline", () => this.commands.markupSelection("underline"));
-      add("Üstünü çiz", "strikeout", () => this.commands.markupSelection("strikeout"));
-      add("Karart", "redact", () => this.commands.redactSelection());
+      add(t("Kopyala"), "copy", () => this.commands.run("copy"));
+      add(t("Vurgula"), "highlight", () => this.commands.markupSelection("highlight"));
+      add(t("Altını çiz"), "underline", () => this.commands.markupSelection("underline"));
+      add(t("Üstünü çiz"), "strikeout", () => this.commands.markupSelection("strikeout"));
+      add(t("Karart"), "redact", () => this.commands.redactSelection());
       add("", "close", () => this.clearSelection());
     } else if (this.objSel) {
       const o = this.objSel;
       if (o.kind === "annot") {
-        add("Özellikler", "settings", () => this.commands.inspector.openObject());
-        if (o.info.type === "FileAttachment") add("Eki kaydet", "save", () => this.commands.saveAttachment(o));
+        add(t("Özellikler"), "settings", () => this.commands.inspector.openObject());
+        if (o.info.type === "FileAttachment") add(t("Eki kaydet"), "save", () => this.commands.saveAttachment(o));
       } else if (o.kind === "image") {
-        add("Değiştir", "image", () => this.commands.replaceImage(o));
-        add("Kaydet", "save", () => this.commands.saveImage(o));
+        add(t("Değiştir"), "image", () => this.commands.replaceImage(o));
+        add(t("Kaydet"), "save", () => this.commands.saveImage(o));
       }
-      add("Sil", "trash", () => this.commands.deleteSelectedObject(), "danger");
+      add(t("Sil"), "trash", () => this.commands.deleteSelectedObject(), "danger");
       add("", "close", () => this.clearObject());
     } else if (this.tool === T.POLYGON && this.interact?.poly) {
-      add("Bitti", "check", () => this.interact.finishPolygon(true), "primary");
-      add(settings.tool.polygonClosed ? "Kapalı" : "Açık", "polygon", () => { settings.tool.polygonClosed = !settings.tool.polygonClosed; saveSettings(); this.updateFloat(); });
-      add("İptal", "close", () => this.interact.finishPolygon(false));
+      add(t("Bitti"), "check", () => this.interact.finishPolygon(true), "primary");
+      add(settings.tool.polygonClosed ? t("Kapalı") : t("Açık"), "polygon", () => { settings.tool.polygonClosed = !settings.tool.polygonClosed; saveSettings(); this.updateFloat(); });
+      add(t("İptal"), "close", () => this.interact.finishPolygon(false));
     } else if (this.tool === T.REDACT && this.redactMarks.length) {
-      add(`Karartmaları uygula (${this.redactMarks.length})`, "redact", () => this.commands.run("apply_redactions"), "danger");
-      add("Temizle", "close", () => { this.redactMarks = []; this.viewer.updateOverlays(); this.updateFloat(); });
+      add(t("Karartmaları uygula ({n})", { n: this.redactMarks.length }), "redact", () => this.commands.run("apply_redactions"), "danger");
+      add(t("Temizle"), "close", () => { this.redactMarks = []; this.viewer.updateOverlays(); this.updateFloat(); });
     } else if (this.tool === T.MEASURE && this.measure) {
       add(this.measureText(), "measure", () => {});
-      add("Belgeye ekle", "plus", () => this.commands.addMeasure());
+      add(t("Belgeye ekle"), "plus", () => this.commands.addMeasure());
     } else if (this.tool !== T.SELECT && this.tool !== T.PAN) {
-      add("Ayarlar", "palette", () => this.commands.inspector.openTool());
-      add("Bitti", "check", () => this.setTool(T.SELECT), "primary");
+      add(t("Ayarlar"), "palette", () => this.commands.inspector.openTool());
+      add(t("Bitti"), "check", () => this.setTool(T.SELECT), "primary");
     }
     box.innerHTML = "";
     box.append(...acts);
@@ -244,7 +290,7 @@ export class App {
     const m = this.measure;
     if (!m) return "";
     const d = Math.hypot(m.p1[0] - m.p0[0], m.p1[1] - m.p0[1]);
-    return `${d.toFixed(1)} pt · ${(d / 72 * 25.4).toFixed(1)} mm · ${(d / 72).toFixed(2)} inç`;
+    return t("{pt} pt · {mm} mm · {inch} inç", { pt: num(d, 1), mm: num((d / 72) * 25.4, 1), inch: num(d / 72, 2) });
   }
 
   // ------------------------------------------------------------- seçimler
@@ -378,7 +424,7 @@ export class App {
   // ------------------------------------------------------------ belge işlemleri
   async confirmDiscard() {
     if (!this.doc || !this.engine.state.dirty) return true;
-    const ans = await askBox("Kaydedilmemiş değişiklikler", `“${this.engine.state.name}” belgesindeki değişiklikler kaydedilsin mi?`, "Kaydet", "Kaydetme");
+    const ans = await askBox(t("Kaydedilmemiş değişiklikler"), t("“{name}” belgesindeki değişiklikler kaydedilsin mi?", { name: this.engine.state.name }), t("Kaydet"), t("Kaydetme"));
     if (ans === null) return false;
     if (ans === "a") return this.save();
     return true;
@@ -391,16 +437,16 @@ export class App {
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
         const data = file.bytes.slice();
-        const info = await withBusy("Belge açılıyor…", () => this.engine.call("open", data, file.name, password));
+        const info = await withBusy(t("Belge açılıyor…"), () => this.engine.call("open", data, file.name, password));
         this._installDoc(info, { name: info.name, handle: file.handle || null });
         if (file.handle) addRecent({ name: file.name, handle: file.handle, date: Date.now() });
         return true;
       } catch (e) {
         if (e.code !== "password") {
-          toast("Belge açılamadı: " + e.message, { error: true, ms: 5000 });
+          toast(e.code === "open-failed" ? errText(e) : t("Belge açılamadı: {error}", { error: errText(e) }), { error: true, ms: 5000 });
           return false;
         }
-        password = await promptBox(attempt ? "Parola yanlış" : "Parola gerekli", `“${file.name}” parola korumalı. Parolayı girin:`, "", { type: "password" });
+        password = await promptBox(attempt ? t("Parola yanlış") : t("Parola gerekli"), t("“{name}” parola korumalı. Parolayı girin:", { name: file.name }), "", { type: "password" });
         if (password === null) return false;
       }
     }
@@ -436,7 +482,7 @@ export class App {
     const files = await this.bridge.openFiles({ kind: "image", multiple: true });
     if (!files.length) return;
     if (!(await this.confirmDiscard())) return;
-    const info = await withBusy("Görüntüler PDF'e dönüştürülüyor…", () => this.engine.call("newFromImages", files.map((f) => ({ name: f.name, bytes: f.bytes }))));
+    const info = await withBusy(t("Görüntüler PDF'e dönüştürülüyor…"), () => this.engine.call("newFromImages", files.map((f) => ({ name: f.name, bytes: f.bytes }))));
     this._installDoc(info, { name: info.name, handle: null });
   }
 
@@ -447,10 +493,10 @@ export class App {
 
   async openRecent(r) {
     try {
-      const f = await withBusy("Açılıyor…", () => this.bridge.openHandle(r.handle));
+      const f = await withBusy(t("Açılıyor…"), () => this.bridge.openHandle(r.handle));
       await this.openFile({ ...f, name: f.name || r.name, handle: r.handle });
     } catch (e) {
-      toast("Dosyaya erişilemiyor: " + e.message, { error: true });
+      toast(t("Dosyaya erişilemiyor: {error}", { error: errText(e) }), { error: true });
       removeRecent(r.handle);
       this.renderHome();
     }
@@ -461,13 +507,13 @@ export class App {
     if (!this.doc) return false;
     if (!this.doc.handle || !this.bridge.native) return this.saveAs();
     try {
-      const bytes = await withBusy("Kaydediliyor…", () => this.engine.call("save"));
+      const bytes = await withBusy(t("Kaydediliyor…"), () => this.engine.call("save"));
       await this.bridge.writeFile("save", { name: this.engine.state.name, handle: this.doc.handle }, bytes);
       await this.engine.call("markSaved", this.engine.state.name);
       toast("Kaydedildi");
       return true;
     } catch (e) {
-      toast("Kaydedilemedi: " + e.message + " — “Farklı kaydet” deneyin.", { error: true, ms: 5000 });
+      toast(t("Kaydedilemedi: {error} — “Farklı kaydet” deneyin.", { error: errText(e) }), { error: true, ms: 5000 });
       return false;
     }
   }
@@ -475,7 +521,7 @@ export class App {
   async saveAs() {
     if (!this.doc) return false;
     try {
-      const bytes = await withBusy("Hazırlanıyor…", () => this.engine.call("save"));
+      const bytes = await withBusy(t("Hazırlanıyor…"), () => this.engine.call("save"));
       const res = await this.bridge.writeFile("saveAs", { name: this.engine.state.name }, bytes);
       if (!res) return false;
       if (res.handle) this.doc.handle = res.handle;
@@ -484,7 +530,7 @@ export class App {
       toast("Kaydedildi: " + (res.name || this.engine.state.name));
       return true;
     } catch (e) {
-      toast("Kaydedilemedi: " + e.message, { error: true, ms: 5000 });
+      toast(t("Kaydedilemedi: {error}", { error: errText(e) }), { error: true, ms: 5000 });
       return false;
     }
   }
@@ -492,16 +538,16 @@ export class App {
   /** Bayt üreten bir işlemin çıktısını kaydet/paylaş (dışa aktarma, bölme...). */
   async deliver(name, bytes, mime) {
     const how = this.bridge.native ? await form(`“${name}”`, [
-      { type: "info", value: `${(bytes.length / 1048576).toFixed(2)} MB hazır. Ne yapılsın?` },
-      { key: "mode", type: "radio", value: "saveAs", options: [["saveAs", "Dosyaya kaydet"], ["share", "Paylaş"]] },
-    ], { ok: "Devam" }) : { mode: "saveAs" };
+      { type: "info", value: t("{size} MB hazır. Ne yapılsın?", { size: num(bytes.length / 1048576, 2) }) },
+      { key: "mode", type: "radio", value: "saveAs", options: [["saveAs", t("Dosyaya kaydet")], ["share", t("Paylaş")]] },
+    ], { ok: t("Devam") }) : { mode: "saveAs" };
     if (!how) return null;
     try {
       const res = await this.bridge.writeFile(how.mode, { name, mime }, bytes);
       if (res && how.mode === "saveAs") toast("Kaydedildi: " + (res.name || name));
       return res;
     } catch (e) {
-      toast("İşlem başarısız: " + e.message, { error: true });
+      toast(t("İşlem başarısız: {error}", { error: errText(e) }), { error: true });
       return null;
     }
   }
@@ -577,9 +623,9 @@ export class App {
   }
 
   async searchOptions() {
-    const v = await form("Arama seçenekleri", [
-      { key: "c", type: "check", label: "Büyük/küçük harf duyarlı", value: settings.searchCase },
-      { key: "w", type: "check", label: "Yalnızca tam kelimeler", value: settings.searchWhole },
+    const v = await form(t("Arama seçenekleri"), [
+      { key: "c", type: "check", label: t("Büyük/küçük harf duyarlı"), value: settings.searchCase },
+      { key: "w", type: "check", label: t("Yalnızca tam kelimeler"), value: settings.searchWhole },
     ]);
     if (!v) return;
     settings.searchCase = v.c;
@@ -594,25 +640,25 @@ export class App {
     home.innerHTML = "";
     const action = (ic, title, sub, fn) => h("button", { onclick: fn, html: icon(ic) + `<div><b>${title}</b><br><span>${sub}</span></div>` });
     const inner = h("div", { class: "home-inner" },
-      h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, appName()), h("p", {}, "PDF düzenleyici — metin, açıklama, sayfa, form, güvenlik"))),
+      h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, appName()), h("p", {}, t("PDF düzenleyici — metin, açıklama, sayfa, form, güvenlik")))),
       h("div", { class: "home-actions" },
-        action("open", "PDF aç", "Cihazdan ya da buluttan", () => this.openDialog()),
-        action("new", "Boş belge", "A4, yeni sayfa", () => this.commands.run("new")),
-        action("image", "Görüntülerden PDF", "Fotoğrafları birleştir", () => this.newFromImages()),
-        action("merge", "PDF birleştir", "Birden çok dosya", () => this.commands.run("merge_new")),
+        action("open", t("PDF aç"), t("Cihazdan ya da buluttan"), () => this.openDialog()),
+        action("new", t("Boş belge"), t("A4, yeni sayfa"), () => this.commands.run("new")),
+        action("image", t("Görüntülerden PDF"), t("Fotoğrafları birleştir"), () => this.newFromImages()),
+        action("merge", t("PDF birleştir"), t("Birden çok dosya"), () => this.commands.run("merge_new")),
       ),
     );
     if (settings.recent.length) {
-      inner.append(h("div", { class: "home-section" }, "Son kullanılanlar"));
+      inner.append(h("div", { class: "home-section" }, t("Son kullanılanlar")));
       for (const r of settings.recent) {
         const d = new Date(r.date);
-        inner.append(h("button", { class: "recent-item", onclick: () => this.openRecent(r), html: icon("new") + `<div><b>${escapeHtml(r.name)}</b><small>${d.toLocaleDateString("tr-TR")} ${d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</small></div>` }));
+        inner.append(h("button", { class: "recent-item", onclick: () => this.openRecent(r), html: icon("new") + `<div><b>${escapeHtml(r.name)}</b><small>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</small></div>` }));
       }
-      inner.append(h("button", { class: "btn", style: { marginTop: "8px" }, onclick: () => { settings.recent = []; saveSettings(); this.renderHome(); } }, "Listeyi temizle"));
+      inner.append(h("button", { class: "btn", style: { marginTop: "8px" }, onclick: () => { settings.recent = []; saveSettings(); this.renderHome(); } }, t("Listeyi temizle")));
     }
-    inner.append(h("div", { class: "home-section" }, "Diğer"), h("div", { class: "home-actions" },
-      action("settings", "Ayarlar", "Tema, yazar adı, yazı tipleri", () => this.commands.run("preferences")),
-      action("info", "Hakkında", "Sürüm ve lisanslar", () => this.commands.run("about")),
+    inner.append(h("div", { class: "home-section" }, t("Diğer")), h("div", { class: "home-actions" },
+      action("settings", t("Ayarlar"), t("Tema, yazar adı, yazı tipleri"), () => this.commands.run("preferences")),
+      action("info", t("Hakkında"), t("Sürüm ve lisanslar"), () => this.commands.run("about")),
     ));
     home.append(inner);
   }

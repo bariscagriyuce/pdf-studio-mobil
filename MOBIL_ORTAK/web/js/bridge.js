@@ -11,7 +11,18 @@
 // kendi şema/yol işleyicisiyle sunar). JS'ten yerele baytlar base64 parçalar
 // hâlinde gönderilir (writeBegin / writeChunk / writeEnd).
 
+import { N_ } from "./i18n.js";
+
 const CHUNK = 512 * 1024;
+
+/** Yerel kabukların (Kotlin / Swift) JS'e gönderdiği hata iletileri; arayüz
+ *  bunları errText() ile seçili dile çevirir. Burada yalnızca çeviri anahtarı
+ *  olarak listelenirler. */
+export const NATIVE_MESSAGES = [
+  N_("Dosya seçici bulunamadı"), N_("Dosyaya artık erişilemiyor"), N_("Dosyaya erişim izni yok ya da dosya taşınmış"),
+  N_("Dosya yazmak için açılamadı"), N_("Geçersiz yazma belirteci"), N_("Geçici dosya oluşturulamadı"), N_("Bozuk veri"),
+  N_("Kaydedilemedi"), N_("Yazılamadı"),
+];
 
 function detect() {
   if (window.PDFStudioNative && typeof window.PDFStudioNative.postMessage === "function") return "android";
@@ -60,7 +71,7 @@ export class Bridge {
     if (!p) return;
     this.pending.delete(msg.id);
     if (msg.ok) p.resolve(msg.result);
-    else p.reject(Object.assign(new Error(msg.error || "İşlem başarısız"), { code: msg.code || "native" }));
+    else p.reject(Object.assign(new Error(msg.error || N_("İşlem başarısız")), { code: msg.code || "native" }));
   }
 
   call(cmd, args = {}) {
@@ -89,13 +100,13 @@ export class Bridge {
 
   async fetchFile(f) {
     const res = await fetch(f.url);
-    if (!res.ok) throw new Error("Dosya okunamadı: " + f.name);
+    if (!res.ok) throw Object.assign(new Error(N_("Dosya okunamadı: {name}")), { params: { name: f.name } });
     return { name: f.name, handle: f.handle || null, mime: f.mime || "", bytes: new Uint8Array(await res.arrayBuffer()) };
   }
 
   /** Daha önce açılmış bir dosyayı tanıtıcısıyla yeniden açar (son kullanılanlar). */
   async openHandle(handle) {
-    if (!this.native) throw new Error("Bu dosyaya artık erişilemiyor");
+    if (!this.native) throw new Error(N_("Bu dosyaya artık erişilemiyor"));
     const f = await this.call("openHandle", { handle });
     return this.fetchFile(f);
   }
@@ -194,7 +205,7 @@ export class Bridge {
   }
 
   async appInfo() {
-    if (!this.native) return { platform: "web", version: "geliştirme" };
+    if (!this.native) return { platform: "web", version: "dev" };
     try {
       return await this.call("appInfo");
     } catch {

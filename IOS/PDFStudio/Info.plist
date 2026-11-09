@@ -12,6 +12,7 @@
 	<array>
 		<string>en</string>
 		<string>tr</string>
+		<string>pt-BR</string>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>

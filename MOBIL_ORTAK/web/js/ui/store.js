@@ -5,6 +5,7 @@ const KEY = "pdfstudio.settings.v1";
 
 const DEFAULTS = {
   theme: "system",
+  language: "system", // "system" | "tr" | "en" | "pt_BR"
   layout: "continuous",
   showTextBoxes: false,
   author: "",

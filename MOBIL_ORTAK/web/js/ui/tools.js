@@ -1,5 +1,8 @@
 // Araç tanımları. Masaüstündeki ui/tools.py ile aynı araç kümesi ve adlar;
-// mobilde alt çubukta kategorilere ayrılır.
+// mobilde alt çubukta kategorilere ayrılır. Metinler N_() ile işaretlidir;
+// gösterilirken t() ile çevrilir (dil anında değişebilsin).
+
+import { N_ } from "../i18n.js";
 
 export const T = {
   SELECT: "select", PAN: "pan", TEXT_EDIT: "text_edit", TEXT_ADD: "text_add",
@@ -25,21 +28,21 @@ export const TAP_SIZES = {
 };
 
 export const LABELS = {
-  select: "Seç / Düzenle", pan: "Kaydır (el)", text_edit: "Metni düzenle", text_add: "Metin ekle",
-  highlight: "Vurgula", underline: "Altını çiz", strikeout: "Üstünü çiz", squiggly: "Dalgalı çiz",
-  note: "Yapışkan not", freetext: "Metin kutusu (açıklama)", ink: "Serbest çizim", eraser: "Açıklama sil",
-  rect: "Dikdörtgen", ellipse: "Elips", line: "Çizgi", arrow: "Ok", polygon: "Çokgen",
-  image: "Görüntü ekle", signature: "İmza yerleştir", stamp: "Damga", link: "Bağlantı",
-  redact: "Karart (redaksiyon)", erase_area: "Alanı sil", crop: "Kırp", form_text: "Form: metin kutusu",
-  form_check: "Form: onay kutusu", measure: "Ölç", print_area: "Alanı yazdır",
+  select: N_("Seç / Düzenle"), pan: N_("Kaydır (el)"), text_edit: N_("Metni düzenle"), text_add: N_("Metin ekle"),
+  highlight: N_("Vurgula"), underline: N_("Altını çiz"), strikeout: N_("Üstünü çiz"), squiggly: N_("Dalgalı çiz"),
+  note: N_("Yapışkan not"), freetext: N_("Metin kutusu (açıklama)"), ink: N_("Serbest çizim"), eraser: N_("Açıklama sil"),
+  rect: N_("Dikdörtgen"), ellipse: N_("Elips"), line: N_("Çizgi"), arrow: N_("Ok"), polygon: N_("Çokgen"),
+  image: N_("Görüntü ekle"), signature: N_("İmza yerleştir"), stamp: N_("Damga"), link: N_("Bağlantı"),
+  redact: N_("Karart (redaksiyon)"), erase_area: N_("Alanı sil"), crop: N_("Kırp"), form_text: N_("Form: metin kutusu"),
+  form_check: N_("Form: onay kutusu"), measure: N_("Ölç"), print_area: N_("Alanı yazdır"),
 };
 
 export const SHORT = {
-  select: "Seç", pan: "Kaydır", text_edit: "Metni düzenle", text_add: "Metin ekle", highlight: "Vurgula",
-  underline: "Altı çizili", strikeout: "Üstü çizili", squiggly: "Dalgalı", note: "Not", freetext: "Metin kutusu",
-  ink: "Kalem", eraser: "Silgi", rect: "Dikdörtgen", ellipse: "Elips", line: "Çizgi", arrow: "Ok",
-  polygon: "Çokgen", image: "Görüntü", signature: "İmza", stamp: "Damga", link: "Bağlantı", redact: "Karart",
-  erase_area: "Alanı sil", crop: "Kırp", form_text: "Metin alanı", form_check: "Onay kutusu", measure: "Ölç", print_area: "Alanı yazdır",
+  select: N_("Seç"), pan: N_("Kaydır"), text_edit: N_("Metni düzenle"), text_add: N_("Metin ekle"), highlight: N_("Vurgula"),
+  underline: N_("Altı çizili"), strikeout: N_("Üstü çizili"), squiggly: N_("Dalgalı"), note: N_("Not"), freetext: N_("Metin kutusu"),
+  ink: N_("Kalem"), eraser: N_("Silgi"), rect: N_("Dikdörtgen"), ellipse: N_("Elips"), line: N_("Çizgi"), arrow: N_("Ok"),
+  polygon: N_("Çokgen"), image: N_("Görüntü"), signature: N_("İmza"), stamp: N_("Damga"), link: N_("Bağlantı"), redact: N_("Karart"),
+  erase_area: N_("Alanı sil"), crop: N_("Kırp"), form_text: N_("Metin alanı"), form_check: N_("Onay kutusu"), measure: N_("Ölç"), print_area: N_("Alanı yazdır"),
 };
 
 export const ICONS = {
@@ -51,43 +54,43 @@ export const ICONS = {
 };
 
 export const HINTS = {
-  select: "Açıklama, görüntü ya da form alanına dokunun. Metin seçmek için basılı tutup sürükleyin.",
-  pan: "Sayfaları kaydırın; iki parmakla yakınlaştırın.",
-  text_edit: "Bir metin bloğuna dokunun; içeriği, punto ve rengi düzenleyin.",
-  text_add: "Sayfada bir kutu çizin (ya da dokunun) ve yeni metni yazın — sayfa içeriğine işlenir.",
-  highlight: "Vurgulamak istediğiniz metnin üzerinde parmağınızı sürükleyin.",
-  underline: "Altını çizmek istediğiniz metnin üzerinde sürükleyin.",
-  strikeout: "Üstünü çizmek istediğiniz metnin üzerinde sürükleyin.",
-  squiggly: "Dalgalı çizgi için metnin üzerinde sürükleyin.",
-  note: "Notun duracağı yere dokunun.",
-  freetext: "Kutu çizin ya da dokunun, sonra metni yazın.",
-  ink: "Parmağınızla ya da kalemle çizin; iki parmakla sayfayı kaydırın.",
-  eraser: "Silmek istediğiniz açıklamaya dokunun.",
-  rect: "Dikdörtgeni sürükleyerek çizin.", ellipse: "Elipsi sürükleyerek çizin.",
-  line: "Çizgiyi sürükleyerek çizin.", arrow: "Oku sürükleyerek çizin.",
-  polygon: "Köşelere sırayla dokunun; bitirmek için “Bitti”ye basın.",
-  image: "Görüntünün yerini çizin ya da dokunun.",
-  signature: "İmzanın yerini çizin ya da dokunun.",
-  stamp: "Damganın yerini çizin ya da dokunun (türü ayarlardan seçilir).",
-  link: "Bağlantı alanını çizin.",
-  redact: "Alanları işaretleyin, sonra “Karartmaları uygula” deyin — içerik kalıcı silinir.",
-  erase_area: "Silinecek alanı çizin; o alandaki metin/grafik kalıcı kaldırılır.",
-  crop: "Yeni sayfa sınırını çizin.",
-  form_text: "Metin alanının yerini çizin ya da dokunun.",
-  form_check: "Onay kutusunun yerine dokunun.",
-  measure: "Ölçmek için iki nokta arasında sürükleyin.",
-  print_area: "Yazdırmak istediğiniz alanı çizin; yalnızca o bölge basılır.",
+  select: N_("Açıklama, görüntü ya da form alanına dokunun. Metin seçmek için basılı tutup sürükleyin."),
+  pan: N_("Sayfaları kaydırın; iki parmakla yakınlaştırın."),
+  text_edit: N_("Bir metin bloğuna dokunun; içeriği, punto ve rengi düzenleyin."),
+  text_add: N_("Sayfada bir kutu çizin (ya da dokunun) ve yeni metni yazın — sayfa içeriğine işlenir."),
+  highlight: N_("Vurgulamak istediğiniz metnin üzerinde parmağınızı sürükleyin."),
+  underline: N_("Altını çizmek istediğiniz metnin üzerinde sürükleyin."),
+  strikeout: N_("Üstünü çizmek istediğiniz metnin üzerinde sürükleyin."),
+  squiggly: N_("Dalgalı çizgi için metnin üzerinde sürükleyin."),
+  note: N_("Notun duracağı yere dokunun."),
+  freetext: N_("Kutu çizin ya da dokunun, sonra metni yazın."),
+  ink: N_("Parmağınızla ya da kalemle çizin; iki parmakla sayfayı kaydırın."),
+  eraser: N_("Silmek istediğiniz açıklamaya dokunun."),
+  rect: N_("Dikdörtgeni sürükleyerek çizin."), ellipse: N_("Elipsi sürükleyerek çizin."),
+  line: N_("Çizgiyi sürükleyerek çizin."), arrow: N_("Oku sürükleyerek çizin."),
+  polygon: N_("Köşelere sırayla dokunun; bitirmek için “Bitti”ye basın."),
+  image: N_("Görüntünün yerini çizin ya da dokunun."),
+  signature: N_("İmzanın yerini çizin ya da dokunun."),
+  stamp: N_("Damganın yerini çizin ya da dokunun (türü ayarlardan seçilir)."),
+  link: N_("Bağlantı alanını çizin."),
+  redact: N_("Alanları işaretleyin, sonra “Karartmaları uygula” deyin — içerik kalıcı silinir."),
+  erase_area: N_("Silinecek alanı çizin; o alandaki metin/grafik kalıcı kaldırılır."),
+  crop: N_("Yeni sayfa sınırını çizin."),
+  form_text: N_("Metin alanının yerini çizin ya da dokunun."),
+  form_check: N_("Onay kutusunun yerine dokunun."),
+  measure: N_("Ölçmek için iki nokta arasında sürükleyin."),
+  print_area: N_("Yazdırmak istediğiniz alanı çizin; yalnızca o bölge basılır."),
 };
 
 /** Alt çubuk kategorileri. Öğeler araç adı ya da "cmd:komut" olabilir. */
 export const CATEGORIES = [
-  { id: "view", label: "Görüntüle", items: ["select", "pan", "print_area", "cmd:print", "cmd:zoom_out", "cmd:zoom_in", "cmd:fit_width", "cmd:fit_page", "cmd:layout", "cmd:theme"] },
-  { id: "edit", label: "Düzenle", items: ["text_edit", "text_add", "erase_area", "image", "link", "cmd:find_replace"] },
-  { id: "comment", label: "Açıklama", items: ["highlight", "underline", "strikeout", "squiggly", "note", "freetext", "stamp", "eraser"] },
-  { id: "draw", label: "Çiz", items: ["ink", "rect", "ellipse", "line", "arrow", "polygon", "measure"] },
-  { id: "pages", label: "Sayfalar", items: ["cmd:page_insert", "cmd:page_delete", "cmd:page_dup", "cmd:rot_left", "cmd:rot_right", "crop", "cmd:page_extract", "cmd:merge", "cmd:split", "cmd:images_as_pages"] },
-  { id: "form", label: "Form", items: ["form_text", "form_check", "cmd:forms_panel", "cmd:form_export", "cmd:form_import", "cmd:form_flatten"] },
-  { id: "protect", label: "Koru", items: ["redact", "cmd:apply_redactions", "signature", "cmd:encrypt", "cmd:decrypt", "cmd:sanitize"] },
+  { id: "view", label: N_("Görüntüle"), items: ["select", "pan", "print_area", "cmd:print", "cmd:zoom_out", "cmd:zoom_in", "cmd:fit_width", "cmd:fit_page", "cmd:layout", "cmd:theme"] },
+  { id: "edit", label: N_("Düzenle"), items: ["text_edit", "text_add", "erase_area", "image", "link", "cmd:find_replace"] },
+  { id: "comment", label: N_("Açıklama"), items: ["highlight", "underline", "strikeout", "squiggly", "note", "freetext", "stamp", "eraser"] },
+  { id: "draw", label: N_("Çiz"), items: ["ink", "rect", "ellipse", "line", "arrow", "polygon", "measure"] },
+  { id: "pages", label: N_("Sayfalar"), items: ["cmd:page_insert", "cmd:page_delete", "cmd:page_dup", "cmd:rot_left", "cmd:rot_right", "crop", "cmd:page_extract", "cmd:merge", "cmd:split", "cmd:images_as_pages"] },
+  { id: "form", label: N_("Form"), items: ["form_text", "form_check", "cmd:forms_panel", "cmd:form_export", "cmd:form_import", "cmd:form_flatten"] },
+  { id: "protect", label: N_("Koru"), items: ["redact", "cmd:apply_redactions", "signature", "cmd:encrypt", "cmd:decrypt", "cmd:sanitize"] },
 ];
 
 export const TOOL_KEYS = {

@@ -12,13 +12,20 @@ dokunmatik kullanıma uyarlanmış bir arayüzle sunar. Tamamen çevrimdışı
 |---|---|
 | **Motor** | MuPDF (resmi WebAssembly sürümü mupdf.js) — masaüstündeki PyMuPDF ile aynı çekirdek |
 | **OCR** | Tesseract (tesseract.js), Türkçe + İngilizce dil verisi uygulamanın içinde |
-| **Arayüz** | Dokunmatik, koyu/açık tema, telefon ve tablet düzeni, tamamen Türkçe |
+| **Arayüz** | Dokunmatik, koyu/açık tema, telefon ve tablet düzeni; Türkçe, English, Português (Brasil) |
 | **Platform** | Android 8.0+ · iOS / iPadOS 15+ |
 
 > **Ad değişikliği (1.1.0):** Uygulamanın adı *PDF Studio* iken *YUCE PDF
 > Düzenleyici* oldu; Türkçe dışındaki dillerde *YUCE PDF EDITOR* görünür.
 > Paket kimliği değişmediği için 1.0.0'ın üzerine güncellenir, ayarlar ve son
 > kullanılanlar korunur.
+
+> **Arayüz dilleri (1.2.0):** Türkçe, İngilizce ve Brezilya Portekizcesi.
+> Varsayılan olarak cihaz dili kullanılır; **Görünüm → Dil…** veya
+> **Tercihler → Dil** ile anında değiştirilir (belge açık kalır). Sayı ve
+> yüzde biçimleri ile uygulama adı seçilen dili izler. Android 13+ sürümünde
+> seçim sistemin *Uygulama dili* ayarına da işlenir; iOS'ta uygulamanın
+> sistem dili *Ayarlar → YUCE PDF → Dil* bölümünden seçilir.
 
 ---
 
@@ -105,7 +112,8 @@ iOS: `IOS/PDFStudio.xcodeproj`'u Xcode'da açın.
   etiketten okunur (`MOBIL_ORTAK/scripts/set_version.mjs`), APK ve IPA
   *Releases* sayfasına SHA256 toplamlarıyla kalıcı olarak yüklenir.
 
-Her derleme önce ortak motorun 66 adımlık sınamasından geçer.
+Her derleme önce ortak motorun 66 adımlık sınamasından ve çeviri denetiminden
+(eksik çeviri, yer tutucu uyumsuzluğu) geçer.
 
 ## Lisans
 

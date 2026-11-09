@@ -5,10 +5,17 @@ import { mu } from "./mu.js";
 import * as G from "./geom.js";
 import { FontManager } from "./fonts.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
+/** Motor hatası. İleti Türkçe çeviri anahtarıdır; değişken kısımlar params'ta
+ *  ({name} gibi yer tutucularla) taşınır, arayüz seçili dile çevirir. */
 export class EngineError extends Error {
-  constructor(message, code) {
-    super(message);
+  constructor(message, code, params) {
+    super(params ? message.replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m)) : message);
+    this.key = message;
     this.code = code || "error";
+    this.params = params || null;
   }
 }
 
@@ -83,7 +90,7 @@ export class Engine {
   get pageCount() { return this.doc ? this.doc.countPages() : 0; }
 
   requireDoc() {
-    if (!this.doc) throw new EngineError("Açık belge yok", "no-doc");
+    if (!this.doc) throw new EngineError(N_("Açık belge yok"), "no-doc");
     return this.doc;
   }
 
@@ -108,18 +115,18 @@ export class Engine {
     try {
       doc = mu.Document.openDocument(bytes, "application/pdf");
     } catch (e) {
-      throw new EngineError("Belge açılamadı: " + (e.message || e), "open-failed");
+      throw new EngineError(N_("Belge açılamadı: {error}"), "open-failed", { error: e.message || String(e) });
     }
     if (doc.needsPassword()) {
       if (!password || !doc.authenticatePassword(password)) {
         doc.destroy();
-        throw new EngineError(password ? "Parola yanlış" : "Belge parola korumalı", "password");
+        throw new EngineError(password ? N_("Parola yanlış") : N_("Belge parola korumalı"), "password");
       }
     }
     const pdf = doc.asPDF();
     if (!pdf) {
       doc.destroy();
-      throw new EngineError("Bu dosya bir PDF değil", "not-pdf");
+      throw new EngineError(N_("Bu dosya bir PDF değil"), "not-pdf");
     }
     return pdf;
   }
@@ -283,7 +290,7 @@ export class Engine {
   /** Sayfayı yükler, fn'i çalıştırır ve sayfayı bırakır (mupdf önbelleği tazelensin). */
   withPage(pno, fn) {
     const doc = this.requireDoc();
-    if (pno < 0 || pno >= doc.countPages()) throw new EngineError("Geçersiz sayfa: " + (pno + 1), "page");
+    if (pno < 0 || pno >= doc.countPages()) throw new EngineError(N_("Geçersiz sayfa: {n}"), "page", { n: pno + 1 });
     const page = doc.loadPage(pno);
     try {
       return fn(page);
@@ -381,7 +388,7 @@ export class Engine {
   }
 
   setMetadata(meta) {
-    return this.edit("Meta veri", null, (doc) => {
+    return this.edit(N_("Meta veri"), null, (doc) => {
       const keys = { title: "Title", author: "Author", subject: "Subject", keywords: "Keywords", creator: "Creator", producer: "Producer" };
       for (const [k, v] of Object.entries(keys)) if (k in meta) doc.setMetaData("info:" + v, meta[k] || "");
     });
@@ -436,7 +443,7 @@ export class Engine {
 
   /** Yer imi ağacını baştan kurar. entries: [{ level, title, page }] */
   setToc(entries) {
-    return this.edit("Yer imleri", null, (doc) => writeOutline(doc, entries));
+    return this.edit(N_("Yer imleri"), null, (doc) => writeOutline(doc, entries));
   }
 }
 
@@ -488,7 +495,7 @@ export function appendConverted(doc, bytes, name, at, password) {
     const d = mu.Document.openDocument(data, "application/pdf");
     if (d.needsPassword() && !(password && d.authenticatePassword(password))) {
       d.destroy();
-      throw new EngineError(`'${name}' parola korumalı`, "password");
+      throw new EngineError(N_("“{name}” parola korumalı"), "password", { name });
     }
     src = d.asPDF();
   } else {

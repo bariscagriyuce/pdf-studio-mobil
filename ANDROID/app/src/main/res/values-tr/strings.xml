@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">YUCE PDF Düzenleyici</string>
     <string name="share_with">Paylaş</string>
+    <string name="no_app_for_link">Bu bağlantıyı açacak uygulama yok</string>
 </resources>

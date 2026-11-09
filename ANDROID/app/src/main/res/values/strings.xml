@@ -3,4 +3,5 @@
     <!-- Görünen ad cihaz diline göre seçilir (Türkçe: values-tr). Paket kimliği değişmez. -->
     <string name="app_name">YUCE PDF EDITOR</string>
     <string name="share_with">Share</string>
+    <string name="no_app_for_link">No app can open this link</string>
 </resources>

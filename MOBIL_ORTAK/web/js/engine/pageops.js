@@ -8,20 +8,23 @@ import { PageWriter, pageToXObject, fitMatrix } from "./writer.js";
 import { drawImage } from "./images.js";
 import { EngineError, appendConverted, graftPages, inheritedRotation, SAVE_OPTIONS } from "./engine.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const PAGE_PRESETS = {
-  "A4 (595 x 842)": [595, 842],
-  "A3 (842 x 1191)": [842, 1191],
-  "A5 (420 x 595)": [420, 595],
-  "Letter (612 x 792)": [612, 792],
-  "Legal (612 x 1008)": [612, 1008],
-  "Tabloid (792 x 1224)": [792, 1224],
+  [N_("A4 (595 x 842)")]: [595, 842],
+  [N_("A3 (842 x 1191)")]: [842, 1191],
+  [N_("A5 (420 x 595)")]: [420, 595],
+  [N_("Letter (612 x 792)")]: [612, 792],
+  [N_("Legal (612 x 1008)")]: [612, 1008],
+  [N_("Tabloid (792 x 1224)")]: [792, 1224],
 };
 
 const range = (n) => [...Array(n).keys()];
 
 // ----------------------------------------------------------------- ekleme
 export function insertBlank(E, index, width, height, count = 1) {
-  return E.edit("Boş sayfa ekle", null, (doc) => {
+  return E.edit(N_("Boş sayfa ekle"), null, (doc) => {
     for (let i = 0; i < count; i++) doc.insertPage(index + i, doc.addPage([0, 0, width, height], 0, {}, ""));
   });
 }
@@ -29,7 +32,7 @@ export function insertBlank(E, index, width, height, count = 1) {
 /** Sayfaları bağımsız kopyalar olarak hemen arkalarına çoğaltır. */
 export function duplicatePages(E, indices) {
   const sel = [...new Set(indices)].sort((a, b) => a - b);
-  return E.edit("Sayfayı çoğalt", null, (doc) => {
+  return E.edit(N_("Sayfayı çoğalt"), null, (doc) => {
     // Kaynağı ayrı bir kopyadan almak, içerik akışlarının ve açıklamaların
     // paylaşılmasını önler (birini düzenlemek diğerini bozmasın).
     const src = new mu.PDFDocument(doc.saveToBuffer(""));
@@ -47,11 +50,11 @@ export function duplicatePages(E, indices) {
 export function deletePages(E, indices) {
   const drop = new Set(indices);
   const keep = range(E.pageCount).filter((i) => !drop.has(i));
-  if (!keep.length) throw new EngineError("Belgede en az bir sayfa kalmalı", "last-page");
-  return E.edit("Sayfa sil", null, (doc) => doc.rearrangePages(keep));
+  if (!keep.length) throw new EngineError(N_("Belgede en az bir sayfa kalmalı"), "last-page");
+  return E.edit(N_("Sayfa sil"), null, (doc) => doc.rearrangePages(keep));
 }
 
-export function reorderPages(E, order, label = "Sayfaları yeniden sırala") {
+export function reorderPages(E, order, label = N_("Sayfaları yeniden sırala")) {
   return E.edit(label, null, (doc) => doc.rearrangePages(order));
 }
 
@@ -66,11 +69,11 @@ export function movePages(E, indices, target) {
 }
 
 export function reversePages(E) {
-  return reorderPages(E, range(E.pageCount).reverse(), "Sıralamayı ters çevir");
+  return reorderPages(E, range(E.pageCount).reverse(), N_("Sıralamayı ters çevir"));
 }
 
 export function rotatePages(E, indices, delta) {
-  return E.edit("Sayfayı döndür", null, (doc) => {
+  return E.edit(N_("Sayfayı döndür"), null, (doc) => {
     for (const pno of indices) {
       const obj = doc.findPage(pno);
       obj.put("Rotate", (((inheritedRotation(obj) + delta) % 360) + 360) % 360);
@@ -79,7 +82,7 @@ export function rotatePages(E, indices, delta) {
 }
 
 export function setRotation(E, indices, value) {
-  return E.edit("Dönüşü ayarla", null, (doc) => {
+  return E.edit(N_("Dönüşü ayarla"), null, (doc) => {
     for (const pno of indices) doc.findPage(pno).put("Rotate", ((value % 360) + 360) % 360);
   });
 }
@@ -94,7 +97,7 @@ function boxOf(obj, name) {
 
 /** rect: kırpma alanı, `refPage` sayfasının görüntülenen koordinatlarında. */
 export function cropPages(E, indices, rect, refPage = null) {
-  return E.edit("Sayfayı kırp", null, (doc) => {
+  return E.edit(N_("Sayfayı kırp"), null, (doc) => {
     const ref = refPage ?? indices[0];
     // Referans sayfadaki kutuyu sayfa sınırlarına göre orantısal kaydet;
     // aynı ölçüdeki tüm sayfalara birebir uygulanır (masaüstüyle aynı davranış).
@@ -115,7 +118,7 @@ export function cropPages(E, indices, rect, refPage = null) {
 }
 
 export function resetCrop(E, indices) {
-  return E.edit("Kırpmayı sıfırla", null, (doc) => {
+  return E.edit(N_("Kırpmayı sıfırla"), null, (doc) => {
     for (const pno of indices) {
       const obj = doc.findPage(pno);
       const media = obj.getInheritable("MediaBox");
@@ -129,7 +132,7 @@ export function resetCrop(E, indices) {
 /** Sayfa içeriğini yeni boyuta ölçekleyerek yeniden oluşturur. */
 export function resizePages(E, indices, width, height) {
   const targets = [...new Set(indices)].sort((a, b) => a - b);
-  return E.edit("Sayfa boyutunu değiştir", null, (doc) => {
+  return E.edit(N_("Sayfa boyutunu değiştir"), null, (doc) => {
     for (const pno of targets) {
       const { ref, T, bounds } = pageToXObject(doc, doc, pno, null);
       const pageObj = doc.addPage([0, 0, width, height], 0, {}, "");
@@ -149,7 +152,7 @@ export function resizePages(E, indices, width, height) {
 /** files: [{ name, bytes, password? }] — PDF ya da görüntü/XPS/EPUB... */
 export function mergeFiles(E, files, at) {
   let added = 0;
-  E.edit("PDF birleştir", null, (doc) => {
+  E.edit(N_("PDF birleştir"), null, (doc) => {
     let pos = at;
     for (const f of files) {
       const n = appendConverted(doc, f.bytes, f.name, pos, f.password);
@@ -162,7 +165,7 @@ export function mergeFiles(E, files, at) {
 
 export function insertImagesAsPages(E, files, at) {
   let added = 0;
-  E.edit("Görüntüyü sayfa olarak ekle", null, (doc) => {
+  E.edit(N_("Görüntüyü sayfa olarak ekle"), null, (doc) => {
     let pos = at;
     for (const f of files) {
       const n = appendConverted(doc, f.bytes, f.name, pos);
@@ -209,7 +212,7 @@ export async function addTextWatermark(E, text, indices, {
   fontsize = 48, color = [0.6, 0.6, 0.6], opacity = 0.25, angle = 45, family = "Helvetica", behind = false,
 } = {}) {
   const st = await resolveStyle(E, { family, size: fontsize, color }, text);
-  return E.edit("Filigran ekle", indices, () => {
+  return E.edit(N_("Filigran ekle"), indices, () => {
     for (const pno of indices) {
       const w = new PageWriter(E, pno);
       const b = w.bounds;
@@ -225,7 +228,7 @@ export async function addTextWatermark(E, text, indices, {
 }
 
 export function addImageWatermark(E, bytes, indices, { opacity = 0.2, scale = 0.5, behind = false } = {}) {
-  return E.edit("Görüntü filigranı", indices, () => {
+  return E.edit(N_("Görüntü filigranı"), indices, () => {
     for (const pno of indices) {
       const b = withPage(E.doc, pno, (p) => p.getBounds());
       const w = (b[2] - b[0]) * scale, h = (b[3] - b[1]) * scale;
@@ -247,7 +250,7 @@ export async function addPageNumbers(E, indices, {
   const total = E.pageCount;
   const texts = indices.map((pno, i) => formatNumber(fmt, { n: startAt + i, N: startAt + i, total, page: pno + 1 }));
   const st = await resolveStyle(E, { family, size: fontsize, color }, texts.join(""));
-  return E.edit("Sayfa numarası ekle", indices, () => {
+  return E.edit(N_("Sayfa numarası ekle"), indices, () => {
     indices.forEach((pno, i) => {
       const w = new PageWriter(E, pno);
       const b = w.bounds;
@@ -266,7 +269,7 @@ export async function addHeaderFooter(E, indices, {
   header = "", footer = "", fontsize = 9, color = [0.2, 0.2, 0.2], margin = 24, family = "Helvetica",
 } = {}) {
   const st = await resolveStyle(E, { family, size: fontsize, color }, header + footer);
-  return E.edit("Üst/alt bilgi", indices, () => {
+  return E.edit(N_("Üst/alt bilgi"), indices, () => {
     for (const pno of indices) {
       const w = new PageWriter(E, pno);
       const b = w.bounds;

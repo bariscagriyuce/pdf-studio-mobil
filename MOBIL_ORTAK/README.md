@@ -24,6 +24,7 @@ MOBIL_ORTAK/
 │   ├── set_version.mjs     sürüm numarasını package.json + iOS projesine işler
 │   └── make_icons.py       web/img/icon.png'den Android/iOS ikonları
 ├── test/engine.test.mjs    motorun kendi kendini sınaması (masaüstü --self-test karşılığı)
+├── test/i18n.test.mjs      çeviri denetimi (masaüstü check_translations.py karşılığı)
 └── web/
     ├── index.html, css/    dokunmatik arayüz (koyu/açık tema, telefon + tablet)
     ├── fonts/              Liberation (Arial/Times/Courier ölçüleri) + DejaVu Sans
@@ -66,6 +67,16 @@ npm run serve
 düzenleme, geri al/yinele, arama (İ/ı katlaması dahil), bul-değiştir, tüm
 açıklama türleri, sayfa işlemleri, form doldurma, gerçek karartma, AES-256
 şifreleme, sıkıştırma, OCR katmanı, seçili alanı yazdırma ve dışa aktarma.
+Ardından çeviri denetimi koddaki tüm `t()` / `tn()` / `N_()` metinlerinin
+`web/js/locales/en.js` ve `pt_BR.js` içinde çevrildiğini ve `{yer tutucu}`
+adlarının tuttuğunu doğrular.
+
+### Çeviri
+
+Kaynak dil Türkçedir; koddaki Türkçe metin aynı zamanda çeviri anahtarıdır
+(`web/js/i18n.js`, masaüstündeki gettext yaklaşımıyla aynı). Yeni bir metin
+eklendiğinde iki katalog dosyasına da karşılığı yazılmalıdır;
+`node test/i18n.test.mjs --missing eksik.json` eksikleri listeler.
 
 `npm run serve` sonrasında arayüz tarayıcıda telefona kurmadan denenebilir
 (geliştirici araçlarında telefon görünümü önerilir).

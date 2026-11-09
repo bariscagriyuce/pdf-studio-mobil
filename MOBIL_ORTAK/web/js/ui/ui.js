@@ -2,6 +2,7 @@
 // sayfa (sheet) pencereleri, alan listesinden form üreten kurucu, bağlam menüsü.
 
 import { icon } from "./icons.js";
+import { t } from "../i18n.js";
 
 export function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
@@ -56,7 +57,7 @@ let busyDepth = 0;
 export async function withBusy(text, fn) {
   const el = $("#busy");
   busyDepth++;
-  $("#busy-text").textContent = text || "Çalışıyor…";
+  $("#busy-text").textContent = text || t("Çalışıyor…");
   const timer = setTimeout(() => { if (busyDepth) el.hidden = false; }, 180);
   try {
     return await fn();
@@ -102,7 +103,7 @@ export function openSheet({ title, body, buttons = [], wide = false, onOpen, dis
       },
       sheet,
     };
-    const head = h("div", { class: "sheet-head" }, h("h2", {}, title), iconBtn("close", "Kapat", () => ctx.close(null)));
+    const head = h("div", { class: "sheet-head" }, h("h2", {}, title), iconBtn("close", t("Kapat"), () => ctx.close(null)));
     const content = typeof body === "function" ? body(ctx) : body;
     const bodyEl = h("div", { class: "sheet-body" }, content);
     sheet.append(h("div", { class: "sheet-grab" }), head, bodyEl);
@@ -133,10 +134,10 @@ export function openSheet({ title, body, buttons = [], wide = false, onOpen, dis
 }
 
 export function alertBox(title, message) {
-  return openSheet({ title, body: h("p", { style: { whiteSpace: "pre-wrap", lineHeight: 1.5 } }, message), buttons: [{ label: "Tamam", primary: true, value: true }] });
+  return openSheet({ title, body: h("p", { style: { whiteSpace: "pre-wrap", lineHeight: 1.5 } }, message), buttons: [{ label: t("Tamam"), primary: true, value: true }] });
 }
 
-export function confirmBox(title, message, { ok = "Tamam", cancel = "Vazgeç", danger = false } = {}) {
+export function confirmBox(title, message, { ok = t("Tamam"), cancel = t("Vazgeç"), danger = false } = {}) {
   return openSheet({
     title,
     body: h("p", { style: { whiteSpace: "pre-wrap", lineHeight: 1.5 } }, message),
@@ -149,7 +150,7 @@ export function askBox(title, message, a, b) {
   return openSheet({
     title,
     body: h("p", { style: { lineHeight: 1.5 } }, message),
-    buttons: [{ label: "Vazgeç", value: null }, { label: b, value: "b" }, { label: a, primary: true, value: "a" }],
+    buttons: [{ label: t("Vazgeç"), value: null }, { label: b, value: "b" }, { label: a, primary: true, value: "a" }],
   });
 }
 
@@ -184,7 +185,7 @@ export function formBody(fields) {
   return { body, values };
 }
 
-export function form(title, fields, { ok = "Tamam", cancel = "Vazgeç", wide = false, validate } = {}) {
+export function form(title, fields, { ok = t("Tamam"), cancel = t("Vazgeç"), wide = false, validate } = {}) {
   const { body, values } = formBody(fields);
   return openSheet({
     title, body, wide,
@@ -215,11 +216,11 @@ function buildField(f, getters, refresh) {
       return wrap(el);
     }
     case "textarea": {
-      const t = h("textarea", { id, placeholder: f.placeholder || "", rows: f.rows || 5 });
-      t.value = f.value ?? "";
-      t.oninput = refresh;
-      getters[f.key] = () => t.value;
-      return wrap(t);
+      const ta = h("textarea", { id, placeholder: f.placeholder || "", rows: f.rows || 5 });
+      ta.value = f.value ?? "";
+      ta.oninput = refresh;
+      getters[f.key] = () => ta.value;
+      return wrap(ta);
     }
     case "select": {
       const s = h("select", { id });
@@ -281,9 +282,9 @@ function buildField(f, getters, refresh) {
     case "pages": {
       const { total, current } = f;
       let mode = f.value || "all";
-      const rng = h("input", { type: "text", placeholder: "örn. 1-3, 5, 8-", value: f.range || "" });
+      const rng = h("input", { type: "text", placeholder: t("örn. 1-3, 5, 8-"), value: f.range || "" });
       const box = h("div", {});
-      const opts = [["all", `Tüm sayfalar (1–${total})`], ["current", `Geçerli sayfa (${current + 1})`], ["range", "Aralık:"]];
+      const opts = [["all", t("Tüm sayfalar (1–{n})", { n: total })], ["current", t("Geçerli sayfa ({n})", { n: current + 1 })], ["range", t("Aralık:")]];
       for (const [val, lab] of opts) {
         const r = h("input", { type: "radio", name: id, value: val });
         r.checked = val === mode;
@@ -313,7 +314,7 @@ export function colorPicker(value, { allowNone = false, onChange } = {}) {
   const sync = () => btns.forEach(([b, hex]) => b.classList.toggle("on", hex === cur));
   const pick = (hex) => { cur = hex; custom.value = hex || "#000000"; sync(); onChange && onChange(get()); };
   if (allowNone) {
-    const b = h("button", { type: "button", class: "swatch-btn none", title: "Yok", onclick: () => pick(null) });
+    const b = h("button", { type: "button", class: "swatch-btn none", title: t("Yok"), onclick: () => pick(null) });
     btns.push([b, null]);
     box.append(b);
   }
@@ -322,7 +323,7 @@ export function colorPicker(value, { allowNone = false, onChange } = {}) {
     btns.push([b, hex]);
     box.append(b);
   }
-  const custom = h("input", { type: "color", class: "swatch-custom", title: "Özel renk" });
+  const custom = h("input", { type: "color", class: "swatch-custom", title: t("Özel renk") });
   custom.value = cur || "#000000";
   custom.oninput = () => { cur = custom.value; sync(); onChange && onChange(get()); };
   box.append(custom);

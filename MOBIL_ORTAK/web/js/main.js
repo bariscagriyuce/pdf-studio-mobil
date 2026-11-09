@@ -10,8 +10,11 @@ import { FontStore } from "./ui/fontstore.js";
 import { toast, sheetOpen, closeTopSheet, closeContextMenu } from "./ui/ui.js";
 import { TOOL_KEYS, T } from "./ui/tools.js";
 import { appName } from "./branding.js";
+import { settings } from "./ui/store.js";
+import { t, setLanguage, errText } from "./i18n.js";
 
 async function boot() {
+  setLanguage(settings.language);
   document.title = appName();
   const engine = new EngineClient();
   const bridge = new Bridge();
@@ -34,7 +37,7 @@ async function boot() {
       const f = await bridge.fetchFile(msg.file);
       await app.openFile(f);
     } catch (e) {
-      toast("Dosya açılamadı: " + e.message, { error: true });
+      toast(t("Dosya açılamadı: {error}", { error: errText(e) }), { error: true });
     }
   });
   bridge.on("back", () => bridge.backResult(app.handleBack()));
@@ -117,5 +120,5 @@ function setupDragDrop(app) {
 
 boot().catch((e) => {
   console.error(e);
-  document.body.innerHTML = `<div style="padding:24px;font-family:system-ui;color:#e5484d">${appName()} başlatılamadı:<br><pre style="white-space:pre-wrap">${String(e && (e.stack || e.message || e))}</pre></div>`;
+  document.body.innerHTML = `<div style="padding:24px;font-family:system-ui;color:#e5484d">${appName()}: ${t("başlatılamadı")}<br><pre style="white-space:pre-wrap">${String(e && (e.stack || e.message || e))}</pre></div>`;
 });

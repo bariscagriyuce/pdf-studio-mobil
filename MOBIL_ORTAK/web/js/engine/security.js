@@ -3,22 +3,25 @@
 import { withPage } from "./textedit.js";
 import { EngineError, SAVE_OPTIONS } from "./engine.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const PERMISSIONS = [
-  ["print", 4, "Yazdırma"],
-  ["modify", 8, "İçeriği değiştirme"],
-  ["copy", 16, "Metin/görüntü kopyalama"],
-  ["annotate", 32, "Açıklama ekleme"],
-  ["form", 256, "Form doldurma"],
-  ["accessibility", 512, "Erişilebilirlik için çıkarma"],
-  ["assemble", 1024, "Sayfa düzenleme (birleştir/böl)"],
-  ["print_hq", 2048, "Yüksek çözünürlüklü yazdırma"],
+  ["print", 4, N_("Yazdırma")],
+  ["modify", 8, N_("İçeriği değiştirme")],
+  ["copy", 16, N_("Metin/görüntü kopyalama")],
+  ["annotate", 32, N_("Açıklama ekleme")],
+  ["form", 256, N_("Form doldurma")],
+  ["accessibility", 512, N_("Erişilebilirlik için çıkarma")],
+  ["assemble", 1024, N_("Sayfa düzenleme (birleştir/böl)")],
+  ["print_hq", 2048, N_("Yüksek çözünürlüklü yazdırma")],
 ];
 
 export const METHODS = {
-  "AES-256 (en güçlü)": "aes-256",
+  [N_("AES-256 (en güçlü)")]: "aes-256",
   "AES-128": "aes-128",
   "RC4-128 (eski)": "rc4-128",
-  "Şifreleme yok": "none",
+  [N_("Şifreleme yok")]: "none",
 };
 
 /** Seçili izinlerden PDF /P değeri (ayrılmış bitler 1). */
@@ -36,7 +39,7 @@ export function currentPermissions(E) {
 
 function checkPassword(pw) {
   // mupdf seçenek dizesi virgülle ayrılır; parolada virgül olamaz
-  if (pw && /[,=]/.test(pw)) throw new EngineError("Parola virgül (,) veya eşittir (=) içeremez", "password-chars");
+  if (pw && /[,=]/.test(pw)) throw new EngineError(N_("Parola virgül (,) veya eşittir (=) içeremez"), "password-chars");
 }
 
 export function saveEncrypted(E, { userPw = "", ownerPw = "", allowed = null, method = "aes-256" } = {}) {
@@ -55,7 +58,7 @@ export function saveDecrypted(E) {
 
 /** Gizlilik temizliği: meta veri, JavaScript, ekler ve bağlantılar. */
 export function sanitize(E, { metadata = true, js = true, attachments = false, links = false } = {}) {
-  return E.edit("Belgeyi temizle", null, (doc) => {
+  return E.edit(N_("Belgeyi temizle"), null, (doc) => {
     const root = doc.getTrailer().get("Root");
     if (metadata) {
       for (const k of ["Title", "Author", "Subject", "Keywords", "Creator", "Producer", "CreationDate", "ModDate"]) {
@@ -120,25 +123,25 @@ export function documentReport(E, { path = "" } = {}) {
     });
   }
   return [
-    ["Dosya", path || E.name],
-    ["Sayfa sayısı", doc.countPages()],
-    ["PDF sürümü", meta.format],
-    ["Başlık", meta.title],
-    ["Yazar", meta.author],
-    ["Konu", meta.subject],
-    ["Anahtar kelimeler", meta.keywords],
-    ["Üretici", meta.producer],
-    ["Oluşturan", meta.creator],
-    ["Oluşturma", meta.creationDate],
-    ["Değiştirme", meta.modDate],
-    ["Şifreleme", meta.encryption && meta.encryption !== "None" ? meta.encryption : "Hayır"],
-    ["Form içeriyor", E.hasForm() ? "Evet" : "Hayır"],
-    ["Açıklama sayısı", annots],
-    ["Bağlantı sayısı", links],
-    ["Görüntü sayısı", images],
-    ["Kelime sayısı", words],
-    ["Yer imi sayısı", E.getToc().length],
-    ["Gömülü dosya", Object.keys(safeFiles(doc)).length],
+    [N_("Dosya"), path || E.name],
+    [N_("Sayfa sayısı"), doc.countPages()],
+    [N_("PDF sürümü"), meta.format],
+    [N_("Başlık"), meta.title],
+    [N_("Yazar"), meta.author],
+    [N_("Konu"), meta.subject],
+    [N_("Anahtar kelimeler"), meta.keywords],
+    [N_("Üretici"), meta.producer],
+    [N_("Oluşturan"), meta.creator],
+    [N_("Oluşturma"), meta.creationDate],
+    [N_("Değiştirme"), meta.modDate],
+    [N_("Şifreleme"), meta.encryption && meta.encryption !== "None" ? meta.encryption : N_("Hayır")],
+    [N_("Form içeriyor"), E.hasForm() ? N_("Evet") : N_("Hayır")],
+    [N_("Açıklama sayısı"), annots],
+    [N_("Bağlantı sayısı"), links],
+    [N_("Görüntü sayısı"), images],
+    [N_("Kelime sayısı"), words],
+    [N_("Yer imi sayısı"), E.getToc().length],
+    [N_("Gömülü dosya"), Object.keys(safeFiles(doc)).length],
   ];
 }
 

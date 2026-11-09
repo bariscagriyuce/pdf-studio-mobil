@@ -11,9 +11,10 @@ import { Inspector } from "./inspector.js";
 import { Panels } from "./panels.js";
 import { runOcr } from "./ocr.js";
 import { appName } from "../branding.js";
+import { t, tn, num, pct, LANGUAGES, N_, errText } from "../i18n.js";
 
-const PAGE_FORMATS = ["{n}", "{n} / {total}", "- {n} -", "Sayfa {n}", "Sayfa {n} / {total}", "{n}/{total}"];
-const POSITIONS = [["alt-orta", "Alt orta"], ["alt-sağ", "Alt sağ"], ["alt-sol", "Alt sol"], ["üst-orta", "Üst orta"], ["üst-sağ", "Üst sağ"], ["üst-sol", "Üst sol"]];
+const PAGE_FORMATS = ["{n}", "{n} / {total}", "- {n} -", N_("Sayfa {n}"), N_("Sayfa {n} / {total}"), "{n}/{total}"];
+const POSITIONS = [["alt-orta", N_("Alt orta")], ["alt-sağ", N_("Alt sağ")], ["alt-sol", N_("Alt sol")], ["üst-orta", N_("Üst orta")], ["üst-sağ", N_("Üst sağ")], ["üst-sol", N_("Üst sol")]];
 
 export class Commands {
   constructor(app) {
@@ -48,16 +49,16 @@ export class Commands {
       await c.run();
     } catch (e) {
       console.error(e);
-      toast(e.message || String(e), { error: true, ms: 5000 });
+      toast(errText(e), { error: true, ms: 5000 });
     }
   }
 
   /** Motor çağrısını meşgul göstergesiyle çalıştırır; hatayı bildirir. */
-  async act(fn, text = "Çalışıyor…") {
+  async act(fn, text = t("Çalışıyor…")) {
     try {
       return await withBusy(text, fn);
     } catch (e) {
-      toast(e.message || String(e), { error: true, ms: 5000 });
+      toast(errText(e), { error: true, ms: 5000 });
       throw e;
     }
   }
@@ -80,110 +81,111 @@ export class Commands {
     return sel.length ? sel : [this.cur];
   }
 
-  pagesField(key = "pages", label = "Sayfalar", value = "all") {
+  pagesField(key = "pages", label = t("Sayfalar"), value = "all") {
     return { key, type: "pages", label, total: this.total, current: this.cur, value };
   }
 
   _register() {
     const A = this.app;
     const add = this.add.bind(this);
-    const tool = (t, section, key) => add(section, "tool_" + t, LABELS[t], () => A.setTool(t), { icon: ICONS[t], key });
+    const tool = (tl, section, key) => add(section, "tool_" + tl, LABELS[tl], () => A.setTool(tl), { icon: ICONS[tl], key });
 
     // ---------------------------------------------------------------- Dosya
-    add("Dosya", "new", "Yeni boş belge", () => this.newDocument(), { icon: "new", needsDoc: false });
-    add("Dosya", "new_images", "Görüntülerden PDF", () => A.newFromImages(), { icon: "image", needsDoc: false });
-    add("Dosya", "merge_new", "PDF birleştir (yeni)", () => this.mergeNew(), { icon: "merge", needsDoc: false });
-    add("Dosya", "open", "Aç…", () => A.openDialog(), { icon: "open", key: "Ctrl+O", needsDoc: false });
-    add("Dosya", "home", "Ana ekran / son kullanılanlar", () => A.closeDocument(), { icon: "home" });
-    add("Dosya", "save", "Kaydet", () => A.save(), { icon: "save", key: "Ctrl+S" });
-    add("Dosya", "save_as", "Farklı kaydet…", () => A.saveAs(), { icon: "save-as", key: "Ctrl+Shift+S" });
-    add("Dosya", "share", "Paylaş…", () => this.share(), { icon: "share" });
-    add("Dosya", "encrypt", "Şifrele ve izinler…", () => this.encrypt(), { icon: "lock", short: "Şifrele" });
-    add("Dosya", "export_images", "Dışa aktar: sayfaları görüntü olarak…", () => this.exportImages(), { icon: "export" });
-    add("Dosya", "export_text", "Dışa aktar: metin / HTML / XML / JSON…", () => this.exportText(), { icon: "export" });
-    add("Dosya", "export_pages", "Dışa aktar: seçili sayfalar (PDF)…", () => this.extractPages(), { icon: "extract" });
-    add("Dosya", "export_all_images", "Dışa aktar: gömülü görüntüler…", () => this.exportAllImages(), { icon: "image" });
-    add("Dosya", "print", "Yazdır…", () => this.print(), { icon: "print", key: "Ctrl+P", short: "Yazdır" });
-    add("Dosya", "print_area", "Seçili alanı yazdır…", () => this.startPrintArea(), { icon: "print-area", key: "Ctrl+Shift+P", short: "Alanı yazdır" });
-    add("Dosya", "close", "Belgeyi kapat", () => A.closeDocument(), { icon: "close", key: "Ctrl+W" });
+    add(N_("Dosya"), "new", N_("Yeni boş belge"), () => this.newDocument(), { icon: "new", needsDoc: false });
+    add(N_("Dosya"), "new_images", N_("Görüntülerden PDF"), () => A.newFromImages(), { icon: "image", needsDoc: false });
+    add(N_("Dosya"), "merge_new", N_("PDF birleştir (yeni)"), () => this.mergeNew(), { icon: "merge", needsDoc: false });
+    add(N_("Dosya"), "open", N_("Aç…"), () => A.openDialog(), { icon: "open", key: "Ctrl+O", needsDoc: false });
+    add(N_("Dosya"), "home", N_("Ana ekran / son kullanılanlar"), () => A.closeDocument(), { icon: "home" });
+    add(N_("Dosya"), "save", N_("Kaydet"), () => A.save(), { icon: "save", key: "Ctrl+S" });
+    add(N_("Dosya"), "save_as", N_("Farklı kaydet…"), () => A.saveAs(), { icon: "save-as", key: "Ctrl+Shift+S" });
+    add(N_("Dosya"), "share", N_("Paylaş…"), () => this.share(), { icon: "share" });
+    add(N_("Dosya"), "encrypt", N_("Şifrele ve izinler…"), () => this.encrypt(), { icon: "lock", short: N_("Şifrele") });
+    add(N_("Dosya"), "export_images", N_("Dışa aktar: sayfaları görüntü olarak…"), () => this.exportImages(), { icon: "export" });
+    add(N_("Dosya"), "export_text", N_("Dışa aktar: metin / HTML / XML / JSON…"), () => this.exportText(), { icon: "export" });
+    add(N_("Dosya"), "export_pages", N_("Dışa aktar: seçili sayfalar (PDF)…"), () => this.extractPages(), { icon: "extract" });
+    add(N_("Dosya"), "export_all_images", N_("Dışa aktar: gömülü görüntüler…"), () => this.exportAllImages(), { icon: "image" });
+    add(N_("Dosya"), "print", N_("Yazdır…"), () => this.print(), { icon: "print", key: "Ctrl+P", short: N_("Yazdır") });
+    add(N_("Dosya"), "print_area", N_("Seçili alanı yazdır…"), () => this.startPrintArea(), { icon: "print-area", key: "Ctrl+Shift+P", short: N_("Alanı yazdır") });
+    add(N_("Dosya"), "close", N_("Belgeyi kapat"), () => A.closeDocument(), { icon: "close", key: "Ctrl+W" });
 
     // ---------------------------------------------------------------- Düzen
-    add("Düzen", "undo", "Geri al", () => this.undo(), { icon: "undo", key: "Ctrl+Z" });
-    add("Düzen", "redo", "Yinele", () => this.redo(), { icon: "redo", key: "Ctrl+Y" });
-    add("Düzen", "copy", "Seçili metni kopyala", () => this.copy(), { icon: "copy", key: "Ctrl+C" });
-    add("Düzen", "find", "Bul…", () => A.openSearch(), { icon: "search", key: "Ctrl+F" });
-    add("Düzen", "find_next", "Sonraki sonuç", () => A.searchStep(1), { icon: "chevron-down", key: "F3" });
-    add("Düzen", "find_prev", "Önceki sonuç", () => A.searchStep(-1), { icon: "chevron-up", key: "Shift+F3" });
-    add("Düzen", "find_replace", "Bul ve değiştir…", () => this.findReplace(), { icon: "search", short: "Bul-değiştir", key: "Ctrl+H" });
-    add("Düzen", "props", "Belge özellikleri (meta veri)…", () => this.metadata(), { icon: "info" });
+    add(N_("Düzen"), "undo", N_("Geri al"), () => this.undo(), { icon: "undo", key: "Ctrl+Z" });
+    add(N_("Düzen"), "redo", N_("Yinele"), () => this.redo(), { icon: "redo", key: "Ctrl+Y" });
+    add(N_("Düzen"), "copy", N_("Seçili metni kopyala"), () => this.copy(), { icon: "copy", key: "Ctrl+C" });
+    add(N_("Düzen"), "find", N_("Bul…"), () => A.openSearch(), { icon: "search", key: "Ctrl+F" });
+    add(N_("Düzen"), "find_next", N_("Sonraki sonuç"), () => A.searchStep(1), { icon: "chevron-down", key: "F3" });
+    add(N_("Düzen"), "find_prev", N_("Önceki sonuç"), () => A.searchStep(-1), { icon: "chevron-up", key: "Shift+F3" });
+    add(N_("Düzen"), "find_replace", N_("Bul ve değiştir…"), () => this.findReplace(), { icon: "search", short: N_("Bul-değiştir"), key: "Ctrl+H" });
+    add(N_("Düzen"), "props", N_("Belge özellikleri (meta veri)…"), () => this.metadata(), { icon: "info" });
 
     // -------------------------------------------------------------- Görünüm
-    add("Görünüm", "zoom_in", "Yakınlaştır", () => A.viewer.zoomBy(1.25), { icon: "zoom-in", key: "Ctrl+=", short: "Yakınlaştır" });
-    add("Görünüm", "zoom_out", "Uzaklaştır", () => A.viewer.zoomBy(0.8), { icon: "zoom-out", key: "Ctrl+-", short: "Uzaklaştır" });
-    add("Görünüm", "zoom_100", "Gerçek boyut (%100)", () => A.viewer.setZoom(1), { icon: "zoom-in", key: "Ctrl+0" });
-    add("Görünüm", "fit_width", "Genişliğe sığdır", () => A.viewer.fit("width"), { icon: "fit-width", key: "Ctrl+1", short: "Genişlik" });
-    add("Görünüm", "fit_page", "Sayfaya sığdır", () => A.viewer.fit("page"), { icon: "fit-page", key: "Ctrl+2", short: "Sayfa" });
-    add("Görünüm", "layout", "Sayfa düzeni…", () => this.chooseLayout(), { icon: "columns", short: "Düzen" });
-    add("Görünüm", "goto", "Sayfaya git…", () => this.gotoPage(), { icon: "next" });
-    add("Görünüm", "sidebar", "Kenar çubuğu (paneller)", () => this.panels.toggle(), { icon: "sidebar", key: "F9" });
-    add("Görünüm", "inspector", "Araç ayarları", () => this.inspector.openTool(), { icon: "palette", key: "F10" });
-    add("Görünüm", "text_boxes", "Metin kutularını göster", () => this.toggleTextBoxes(), { icon: "text-edit", check: () => settings.showTextBoxes });
-    add("Görünüm", "fullscreen", "Odak modu (çubukları gizle)", () => this.focusMode(), { icon: "fullscreen", key: "F11" });
-    add("Görünüm", "theme", "Koyu / açık tema", () => A.toggleTheme(), { icon: "sun", needsDoc: false, short: "Tema" });
+    add(N_("Görünüm"), "zoom_in", N_("Yakınlaştır"), () => A.viewer.zoomBy(1.25), { icon: "zoom-in", key: "Ctrl+=", short: N_("Yakınlaştır") });
+    add(N_("Görünüm"), "zoom_out", N_("Uzaklaştır"), () => A.viewer.zoomBy(0.8), { icon: "zoom-out", key: "Ctrl+-", short: N_("Uzaklaştır") });
+    add(N_("Görünüm"), "zoom_100", N_("Gerçek boyut (%100)"), () => A.viewer.setZoom(1), { icon: "zoom-in", key: "Ctrl+0" });
+    add(N_("Görünüm"), "fit_width", N_("Genişliğe sığdır"), () => A.viewer.fit("width"), { icon: "fit-width", key: "Ctrl+1", short: N_("Genişlik") });
+    add(N_("Görünüm"), "fit_page", N_("Sayfaya sığdır"), () => A.viewer.fit("page"), { icon: "fit-page", key: "Ctrl+2", short: N_("Sayfa") });
+    add(N_("Görünüm"), "layout", N_("Sayfa düzeni…"), () => this.chooseLayout(), { icon: "columns", short: N_("Düzen") });
+    add(N_("Görünüm"), "goto", N_("Sayfaya git…"), () => this.gotoPage(), { icon: "next" });
+    add(N_("Görünüm"), "sidebar", N_("Kenar çubuğu (paneller)"), () => this.panels.toggle(), { icon: "sidebar", key: "F9" });
+    add(N_("Görünüm"), "inspector", N_("Araç ayarları"), () => this.inspector.openTool(), { icon: "palette", key: "F10" });
+    add(N_("Görünüm"), "text_boxes", N_("Metin kutularını göster"), () => this.toggleTextBoxes(), { icon: "text-edit", check: () => settings.showTextBoxes });
+    add(N_("Görünüm"), "fullscreen", N_("Odak modu (çubukları gizle)"), () => this.focusMode(), { icon: "fullscreen", key: "F11" });
+    add(N_("Görünüm"), "theme", N_("Koyu / açık tema"), () => A.toggleTheme(), { icon: "sun", needsDoc: false, short: N_("Tema") });
+    add(N_("Görünüm"), "language", N_("Dil…"), () => this.chooseLanguage(), { icon: "globe", needsDoc: false, short: N_("Dil") });
 
     // ---------------------------------------------------------------- Sayfa
-    add("Sayfa", "page_insert", "Boş sayfa ekle…", () => this.insertPage(), { icon: "page-add", short: "Sayfa ekle" });
-    add("Sayfa", "images_as_pages", "Görüntüleri sayfa olarak ekle…", () => this.imagesAsPages(), { icon: "image", short: "Görüntü sayfa" });
-    add("Sayfa", "page_dup", "Sayfayı çoğalt", () => this.call("duplicatePages", this.targets()), { icon: "page-copy", short: "Çoğalt" });
-    add("Sayfa", "page_delete", "Sayfayı sil…", () => this.deletePages(this.targets()), { icon: "page-delete", short: "Sil" });
-    add("Sayfa", "rot_left", "Sola döndür", () => this.call("rotatePages", this.targets(), -90), { icon: "rotate-left", key: "Ctrl+Shift+←", short: "Sola" });
-    add("Sayfa", "rot_right", "Sağa döndür", () => this.call("rotatePages", this.targets(), 90), { icon: "rotate-right", key: "Ctrl+Shift+→", short: "Sağa" });
-    add("Sayfa", "reverse", "Sıralamayı ters çevir", () => this.call("reversePages"), { icon: "split" });
-    add("Sayfa", "page_move", "Sayfaları taşı…", () => this.movePages(), { icon: "drag" });
-    tool(T.CROP, "Sayfa", "C");
-    add("Sayfa", "page_crop_reset", "Kırpmayı sıfırla", () => this.call("resetCrop", this.targets()), { icon: "crop" });
-    add("Sayfa", "page_resize", "Sayfa boyutunu değiştir…", () => this.resizePages(), { icon: "fit-page" });
-    add("Sayfa", "merge", "PDF birleştir (ekle)…", () => this.merge(), { icon: "merge", short: "Birleştir" });
-    add("Sayfa", "split", "PDF'i böl…", () => this.split(), { icon: "split", short: "Böl" });
-    add("Sayfa", "page_extract", "Sayfaları çıkar (ayrı PDF)…", () => this.extractPages(), { icon: "extract", short: "Çıkar" });
+    add(N_("Sayfa"), "page_insert", N_("Boş sayfa ekle…"), () => this.insertPage(), { icon: "page-add", short: N_("Sayfa ekle") });
+    add(N_("Sayfa"), "images_as_pages", N_("Görüntüleri sayfa olarak ekle…"), () => this.imagesAsPages(), { icon: "image", short: N_("Görüntü sayfa") });
+    add(N_("Sayfa"), "page_dup", N_("Sayfayı çoğalt"), () => this.call("duplicatePages", this.targets()), { icon: "page-copy", short: N_("Çoğalt") });
+    add(N_("Sayfa"), "page_delete", N_("Sayfayı sil…"), () => this.deletePages(this.targets()), { icon: "page-delete", short: N_("Sil") });
+    add(N_("Sayfa"), "rot_left", N_("Sola döndür"), () => this.call("rotatePages", this.targets(), -90), { icon: "rotate-left", key: "Ctrl+Shift+←", short: N_("Sola") });
+    add(N_("Sayfa"), "rot_right", N_("Sağa döndür"), () => this.call("rotatePages", this.targets(), 90), { icon: "rotate-right", key: "Ctrl+Shift+→", short: N_("Sağa") });
+    add(N_("Sayfa"), "reverse", N_("Sıralamayı ters çevir"), () => this.call("reversePages"), { icon: "split" });
+    add(N_("Sayfa"), "page_move", N_("Sayfaları taşı…"), () => this.movePages(), { icon: "drag" });
+    tool(T.CROP, N_("Sayfa"), "C");
+    add(N_("Sayfa"), "page_crop_reset", N_("Kırpmayı sıfırla"), () => this.call("resetCrop", this.targets()), { icon: "crop" });
+    add(N_("Sayfa"), "page_resize", N_("Sayfa boyutunu değiştir…"), () => this.resizePages(), { icon: "fit-page" });
+    add(N_("Sayfa"), "merge", N_("PDF birleştir (ekle)…"), () => this.merge(), { icon: "merge", short: N_("Birleştir") });
+    add(N_("Sayfa"), "split", N_("PDF'i böl…"), () => this.split(), { icon: "split", short: N_("Böl") });
+    add(N_("Sayfa"), "page_extract", N_("Sayfaları çıkar (ayrı PDF)…"), () => this.extractPages(), { icon: "extract", short: N_("Çıkar") });
 
     // ---------------------------------------------------------------- Metin
-    tool(T.TEXT_EDIT, "Metin", "E");
-    tool(T.TEXT_ADD, "Metin", "T");
-    tool(T.ERASE_AREA, "Metin");
-    add("Metin", "ocr", "OCR — aranabilir metin katmanı…", () => this.ocr(), { icon: "ocr" });
+    tool(T.TEXT_EDIT, N_("Metin"), "E");
+    tool(T.TEXT_ADD, N_("Metin"), "T");
+    tool(T.ERASE_AREA, N_("Metin"));
+    add(N_("Metin"), "ocr", N_("OCR — aranabilir metin katmanı…"), () => this.ocr(), { icon: "ocr" });
 
     // ------------------------------------------------------------------ Ekle
-    for (const [t, key] of [[T.HIGHLIGHT], [T.UNDERLINE], [T.STRIKEOUT], [T.SQUIGGLY], [T.NOTE, "N"], [T.FREETEXT], [T.INK, "D"], [T.RECT, "R"], [T.ELLIPSE], [T.LINE, "L"], [T.ARROW, "A"], [T.POLYGON], [T.STAMP], [T.IMAGE, "I"], [T.SIGNATURE, "S"], [T.LINK, "K"], [T.MEASURE, "M"]]) tool(t, "Ekle", key);
-    add("Ekle", "watermark", "Filigran…", () => this.watermark(), { icon: "watermark" });
-    add("Ekle", "pagenum", "Sayfa numarası / üst-alt bilgi…", () => this.pageNumbers(), { icon: "number" });
-    add("Ekle", "attach", "Dosya eki…", () => this.attachFile(), { icon: "import" });
-    add("Ekle", "bookmark_add", "Yer imi ekle (bu sayfa)…", () => this.panels.addBookmark(), { icon: "bookmark" });
+    for (const [tl, key] of [[T.HIGHLIGHT], [T.UNDERLINE], [T.STRIKEOUT], [T.SQUIGGLY], [T.NOTE, "N"], [T.FREETEXT], [T.INK, "D"], [T.RECT, "R"], [T.ELLIPSE], [T.LINE, "L"], [T.ARROW, "A"], [T.POLYGON], [T.STAMP], [T.IMAGE, "I"], [T.SIGNATURE, "S"], [T.LINK, "K"], [T.MEASURE, "M"]]) tool(tl, N_("Ekle"), key);
+    add(N_("Ekle"), "watermark", N_("Filigran…"), () => this.watermark(), { icon: "watermark" });
+    add(N_("Ekle"), "pagenum", N_("Sayfa numarası / üst-alt bilgi…"), () => this.pageNumbers(), { icon: "number" });
+    add(N_("Ekle"), "attach", N_("Dosya eki…"), () => this.attachFile(), { icon: "import" });
+    add(N_("Ekle"), "bookmark_add", N_("Yer imi ekle (bu sayfa)…"), () => this.panels.addBookmark(), { icon: "bookmark" });
 
     // ------------------------------------------------------------------ Form
-    tool(T.FORM_TEXT, "Form");
-    tool(T.FORM_CHECK, "Form");
-    add("Form", "forms_panel", "Form alanlarını doldur", () => this.panels.open("forms"), { icon: "form", short: "Doldur" });
-    add("Form", "form_export", "Değerleri JSON olarak dışa aktar…", () => this.formExport(), { icon: "export", short: "JSON dışa" });
-    add("Form", "form_import", "Değerleri JSON'dan içe aktar…", () => this.formImport(), { icon: "import", short: "JSON içe" });
-    add("Form", "form_flatten", "Formu düzleştir", () => this.formFlatten(), { icon: "layers", short: "Düzleştir" });
+    tool(T.FORM_TEXT, N_("Form"));
+    tool(T.FORM_CHECK, N_("Form"));
+    add(N_("Form"), "forms_panel", N_("Form alanlarını doldur"), () => this.panels.open("forms"), { icon: "form", short: N_("Doldur") });
+    add(N_("Form"), "form_export", N_("Değerleri JSON olarak dışa aktar…"), () => this.formExport(), { icon: "export", short: N_("JSON dışa") });
+    add(N_("Form"), "form_import", N_("Değerleri JSON'dan içe aktar…"), () => this.formImport(), { icon: "import", short: N_("JSON içe") });
+    add(N_("Form"), "form_flatten", N_("Formu düzleştir"), () => this.formFlatten(), { icon: "layers", short: N_("Düzleştir") });
 
     // --------------------------------------------------------------- Araçlar
-    tool(T.REDACT, "Araçlar");
-    add("Araçlar", "apply_redactions", "Karartmaları uygula", () => this.applyRedactions(), { icon: "redact", key: "Ctrl+Shift+R", short: "Uygula" });
-    tool(T.ERASER, "Araçlar");
-    add("Araçlar", "flatten", "Açıklamaları düzleştir", () => this.flatten(), { icon: "layers" });
-    add("Araçlar", "clear_annots", "Tüm açıklamaları kaldır…", () => this.clearAnnots(), { icon: "trash" });
-    add("Araçlar", "compress", "Boyut küçült…", () => this.compress(), { icon: "compress" });
-    add("Araçlar", "sanitize", "Belgeyi temizle (gizlilik)…", () => this.sanitize(), { icon: "eraser", short: "Temizle" });
-    add("Araçlar", "decrypt", "Şifreyi kaldır…", () => this.decrypt(), { icon: "unlock", short: "Şifre kaldır" });
-    add("Araçlar", "doc_info", "Belge bilgisi…", () => this.docInfo(), { icon: "info" });
-    add("Araçlar", "fonts", "Yazı tipi içe aktar…", () => this.app.fontStore.importFonts(), { icon: "font", needsDoc: false });
-    add("Araçlar", "preferences", "Ayarlar…", () => preferencesDialog(A), { icon: "settings", needsDoc: false });
+    tool(T.REDACT, N_("Araçlar"));
+    add(N_("Araçlar"), "apply_redactions", N_("Karartmaları uygula"), () => this.applyRedactions(), { icon: "redact", key: "Ctrl+Shift+R", short: N_("Uygula") });
+    tool(T.ERASER, N_("Araçlar"));
+    add(N_("Araçlar"), "flatten", N_("Açıklamaları düzleştir"), () => this.flatten(), { icon: "layers" });
+    add(N_("Araçlar"), "clear_annots", N_("Tüm açıklamaları kaldır…"), () => this.clearAnnots(), { icon: "trash" });
+    add(N_("Araçlar"), "compress", N_("Boyut küçült…"), () => this.compress(), { icon: "compress" });
+    add(N_("Araçlar"), "sanitize", N_("Belgeyi temizle (gizlilik)…"), () => this.sanitize(), { icon: "eraser", short: N_("Temizle") });
+    add(N_("Araçlar"), "decrypt", N_("Şifreyi kaldır…"), () => this.decrypt(), { icon: "unlock", short: N_("Şifre kaldır") });
+    add(N_("Araçlar"), "doc_info", N_("Belge bilgisi…"), () => this.docInfo(), { icon: "info" });
+    add(N_("Araçlar"), "fonts", N_("Yazı tipi içe aktar…"), () => this.app.fontStore.importFonts(), { icon: "font", needsDoc: false });
+    add(N_("Araçlar"), "preferences", N_("Ayarlar…"), () => preferencesDialog(A), { icon: "settings", needsDoc: false });
 
     // ----------------------------------------------------------------- Yardım
-    add("Yardım", "shortcuts", "Kısayollar ve hareketler", () => shortcutsDialog(), { icon: "info", needsDoc: false });
-    add("Yardım", "about", "Hakkında", () => aboutDialog(A), { icon: "info-circle", needsDoc: false });
+    add(N_("Yardım"), "shortcuts", N_("Kısayollar ve hareketler"), () => shortcutsDialog(), { icon: "info", needsDoc: false });
+    add(N_("Yardım"), "about", N_("Hakkında"), () => aboutDialog(A), { icon: "info-circle", needsDoc: false });
   }
 
   // =================================================================== çekmece
@@ -196,7 +198,7 @@ export class Commands {
     const sections = [...new Set(this.list.map((c) => c.section))];
     for (const s of sections) {
       const group = h("div", { class: "menu-group" + (s === "Dosya" ? " open" : "") });
-      group.append(h("button", { class: "menu-title", html: `<span>${s}</span>` + icon("chevron-down"), onclick: () => group.classList.toggle("open") }));
+      group.append(h("button", { class: "menu-title", html: `<span>${escapeHtml(t(s))}</span>` + icon("chevron-down"), onclick: () => group.classList.toggle("open") }));
       const items = h("div", { class: "menu-items" });
       for (const c of this.list.filter((x) => x.section === s)) {
         const disabled = c.needsDoc && !this.app.isOpen;
@@ -204,7 +206,7 @@ export class Commands {
         const toolOn = c.id.startsWith("tool_") && this.app.tool === c.id.slice(5);
         items.append(h("button", {
           class: "menu-item" + (checked || toolOn ? " checked" : ""), disabled,
-          html: icon(c.icon || "info") + `<span>${escapeHtml(c.label)}</span>` + (c.key && !checked && !toolOn ? `<kbd>${c.key}</kbd>` : ""),
+          html: icon(c.icon || "info") + `<span>${escapeHtml(t(c.label))}</span>` + (c.key && !checked && !toolOn ? `<kbd>${c.key}</kbd>` : ""),
           onclick: () => { this.closeDrawer(); this.run(c.id); },
         }));
       }
@@ -224,15 +226,15 @@ export class Commands {
   // ============================================================ Dosya işlemleri
   async newDocument() {
     const presets = this.app.consts.pagePresets;
-    const v = await form("Yeni boş belge", [
-      { key: "preset", type: "select", label: "Boyut", options: [...Object.keys(presets), "Özel"], value: "A4 (595 x 842)" },
-      { key: "w", type: "number", label: "Genişlik (pt)", value: 595, show: (x) => x.preset === "Özel" },
-      { key: "h", type: "number", label: "Yükseklik (pt)", value: 842, show: (x) => x.preset === "Özel" },
-      { key: "land", type: "check", label: "Yatay" },
-      { key: "n", type: "number", label: "Sayfa sayısı", value: 1, min: 1, max: 500 },
+    const v = await form(t("Yeni boş belge"), [
+      { key: "preset", type: "select", label: t("Boyut"), options: [...Object.keys(presets).map((k) => [k, t(k)]), ["custom", t("Özel")]], value: "A4 (595 x 842)" },
+      { key: "w", type: "number", label: t("Genişlik (pt)"), value: 595, show: (x) => x.preset === "custom" },
+      { key: "h", type: "number", label: t("Yükseklik (pt)"), value: 842, show: (x) => x.preset === "custom" },
+      { key: "land", type: "check", label: t("Yatay") },
+      { key: "n", type: "number", label: t("Sayfa sayısı"), value: 1, min: 1, max: 500 },
     ]);
     if (!v) return;
-    let [w, hh] = v.preset === "Özel" ? [v.w || 595, v.h || 842] : presets[v.preset];
+    let [w, hh] = v.preset === "custom" ? [v.w || 595, v.h || 842] : presets[v.preset];
     if (v.land) [w, hh] = [hh, w];
     await this.app.newBlank(w, hh, Math.max(1, v.n || 1));
   }
@@ -242,7 +244,7 @@ export class Commands {
     if (!files.length) return;
     if (!(await this.app.confirmDiscard())) return;
     const info = await this.act(() => this.engine.call("newBlank", 595, 842, 1));
-    this.app._installDoc(info, { name: "Birleştirilmiş.pdf", handle: null });
+    this.app._installDoc(info, { name: t("Birleştirilmiş.pdf"), handle: null });
     await this._mergeFiles(files, 0);
     await this.engine.call("deletePages", [this.total - 1]).catch(() => {});
   }
@@ -255,14 +257,13 @@ export class Commands {
     }
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
-        const n = await this.act(() => this.engine.call("mergeFiles", list, at), "Birleştiriliyor…");
+        const n = await this.act(() => this.engine.call("mergeFiles", list, at), t("Birleştiriliyor…"));
         toast(`${n} sayfa eklendi`);
         return n;
       } catch (e) {
         if (e.code !== "password") return 0;
-        const m = /'(.+)'/.exec(e.message);
-        const target = list.find((f) => m && f.name === m[1]) || list[0];
-        const pw = await promptBox("Parola gerekli", `“${target.name}” parola korumalı:`, "", { type: "password" });
+        const target = list.find((f) => e.params && f.name === e.params.name) || list[0];
+        const pw = await promptBox(t("Parola gerekli"), t("“{name}” parola korumalı:", { name: target.name }), "", { type: "password" });
         if (pw === null) return 0;
         target.password = pw;
       }
@@ -271,12 +272,12 @@ export class Commands {
   }
 
   async share() {
-    const bytes = await this.act(() => this.engine.call("exportBytes"), "Hazırlanıyor…");
+    const bytes = await this.act(() => this.engine.call("exportBytes"), t("Hazırlanıyor…"));
     await this.app.bridge.writeFile("share", { name: this.engine.state.name, mime: "application/pdf" }, bytes);
   }
 
   async print() {
-    const bytes = await this.act(() => this.engine.call("exportBytes"), "Yazdırmaya hazırlanıyor…");
+    const bytes = await this.act(() => this.engine.call("exportBytes"), t("Yazdırmaya hazırlanıyor…"));
     await this.app.bridge.writeFile("print", { name: this.engine.state.name, mime: "application/pdf" }, bytes);
   }
 
@@ -286,19 +287,19 @@ export class Commands {
 
   async encrypt() {
     const c = this.app.consts;
-    const v = await form("Şifreleme ve izinler", [
-      { key: "user", type: "password", label: "Kullanıcı parolası (açmak için)", hint: "Boş bırakılırsa belge parola sormadan açılır; izinler yine uygulanır." },
-      { key: "owner", type: "password", label: "Sahip parolası (izinleri değiştirmek için)" },
-      { key: "method", type: "select", label: "Yöntem", options: Object.entries(c.methods).map(([l, v2]) => [v2, l]), value: "aes-256" },
-      { type: "info", value: "İzin verilen işlemler:" },
-      ...c.permissions.map(([k, , label]) => ({ key: "p_" + k, type: "check", label, value: true })),
+    const v = await form(t("Şifreleme ve izinler"), [
+      { key: "user", type: "password", label: t("Kullanıcı parolası (açmak için)"), hint: t("Boş bırakılırsa belge parola sormadan açılır; izinler yine uygulanır.") },
+      { key: "owner", type: "password", label: t("Sahip parolası (izinleri değiştirmek için)") },
+      { key: "method", type: "select", label: t("Yöntem"), options: Object.entries(c.methods).map(([l, v2]) => [v2, t(l)]), value: "aes-256" },
+      { type: "info", value: t("İzin verilen işlemler:") },
+      ...c.permissions.map(([k, , label]) => ({ key: "p_" + k, type: "check", label: t(label), value: true })),
     ], {
-      ok: "Şifrele ve kaydet",
-      validate: (x) => (!x.user && !x.owner && x.method !== "none" ? "En az bir parola girin" : /[,=]/.test(x.user + x.owner) ? "Parola virgül (,) veya eşittir (=) içeremez" : null),
+      ok: t("Şifrele ve kaydet"),
+      validate: (x) => (!x.user && !x.owner && x.method !== "none" ? t("En az bir parola girin") : /[,=]/.test(x.user + x.owner) ? t("Parola virgül (,) veya eşittir (=) içeremez") : null),
     });
     if (!v) return;
     const allowed = c.permissions.map(([k]) => k).filter((k) => v["p_" + k]);
-    const bytes = await this.act(() => this.engine.call("saveEncrypted", { userPw: v.user, ownerPw: v.owner, allowed, method: v.method }), "Şifreleniyor…");
+    const bytes = await this.act(() => this.engine.call("saveEncrypted", { userPw: v.user, ownerPw: v.owner, allowed, method: v.method }), t("Şifreleniyor…"));
     await this.app.deliver(`${this.stem()}_sifreli.pdf`, bytes, "application/pdf");
   }
 
@@ -307,26 +308,26 @@ export class Commands {
       toast("Belge şifreli değil");
       return;
     }
-    const bytes = await this.act(() => this.engine.call("saveDecrypted"), "Şifre kaldırılıyor…");
+    const bytes = await this.act(() => this.engine.call("saveDecrypted"), t("Şifre kaldırılıyor…"));
     await this.app.deliver(`${this.stem()}_sifresiz.pdf`, bytes, "application/pdf");
   }
 
   async exportImages() {
     const webp = await canEncodeWebp();
-    const v = await form("Sayfaları görüntü olarak dışa aktar", [
-      { key: "fmt", type: "seg", label: "Biçim", value: "png", options: [["png", "PNG"], ["jpg", "JPG"], ...(webp ? [["webp", "WEBP"]] : []), ["pam", "PAM"]] },
-      { key: "dpi", type: "range", label: "Çözünürlük (DPI)", value: 150, min: 36, max: 1200, step: 12, format: (x) => x + " dpi" },
-      { key: "gray", type: "check", label: "Gri tonlama" },
-      { key: "alpha", type: "check", label: "Saydam arka plan (PNG)", show: (x) => x.fmt === "png" },
+    const v = await form(t("Sayfaları görüntü olarak dışa aktar"), [
+      { key: "fmt", type: "seg", label: t("Biçim"), value: "png", options: [["png", "PNG"], ["jpg", "JPG"], ...(webp ? [["webp", "WEBP"]] : []), ["pam", "PAM"]] },
+      { key: "dpi", type: "range", label: t("Çözünürlük (DPI)"), value: 150, min: 36, max: 1200, step: 12, format: (x) => x + " dpi" },
+      { key: "gray", type: "check", label: t("Gri tonlama") },
+      { key: "alpha", type: "check", label: t("Saydam arka plan (PNG)"), show: (x) => x.fmt === "png" },
       this.pagesField(),
-    ], { ok: "Dışa aktar" });
+    ], { ok: t("Dışa aktar") });
     if (!v || !v.pages.length) return;
     const big = v.pages.length * (v.dpi / 72) ** 2 * 595 * 842 * 3;
-    if (big > 1.5e9 && !(await confirmBox("Büyük çıktı", `Bu ayarlarla yaklaşık ${fmtBytes(big)} ham görüntü verisi üretilecek. Devam edilsin mi?`))) return;
+    if (big > 1.5e9 && !(await confirmBox(t("Büyük çıktı"), t("Bu ayarlarla yaklaşık {size} ham görüntü verisi üretilecek. Devam edilsin mi?", { size: fmtBytes(big) })))) return;
     const files = [];
     await this.act(async () => {
       for (let i = 0; i < v.pages.length; i++) {
-        setBusyText(`Sayfa ${i + 1}/${v.pages.length} dışa aktarılıyor…`);
+        setBusyText(t("Sayfa {i}/{n} dışa aktarılıyor…", { i: i + 1, n: v.pages.length }));
         files.push(...(await this.engine.call("exportImages", { pages: [v.pages[i]], dpi: v.dpi, format: v.fmt, gray: v.gray, alpha: v.alpha, stem: this.stem() })));
       }
     });
@@ -344,17 +345,17 @@ export class Commands {
       await this.app.deliver(f.name, f.bytes, mimeOf(f.name));
       return;
     }
-    const zip = await this.act(() => this.engine.call("zip", files), "ZIP hazırlanıyor…");
+    const zip = await this.act(() => this.engine.call("zip", files), t("ZIP hazırlanıyor…"));
     await this.app.deliver(zipName, zip, "application/zip");
   }
 
   async exportText() {
     const modes = this.app.consts.textModes;
-    const v = await form("Metni dışa aktar", [
-      { key: "mode", type: "select", label: "Biçim", options: Object.keys(modes), value: Object.keys(modes)[0] },
-      { key: "sep", type: "check", label: "Sayfa ayraçlarını ekle", value: true },
+    const v = await form(t("Metni dışa aktar"), [
+      { key: "mode", type: "select", label: t("Biçim"), options: Object.keys(modes).map((k) => [k, t(k)]), value: Object.keys(modes)[0] },
+      { key: "sep", type: "check", label: t("Sayfa ayraçlarını ekle"), value: true },
       this.pagesField(),
-    ], { ok: "Dışa aktar" });
+    ], { ok: t("Dışa aktar") });
     if (!v) return;
     const [mode, ext] = modes[v.mode];
     const text = await this.act(() => this.engine.call("exportText", { mode, pages: v.pages, separator: v.sep, title: this.stem() }));
@@ -363,21 +364,21 @@ export class Commands {
   }
 
   async exportAllImages() {
-    const files = await this.act(() => this.engine.call("extractAllImages"), "Görüntüler çıkarılıyor…");
+    const files = await this.act(() => this.engine.call("extractAllImages"), t("Görüntüler çıkarılıyor…"));
     await this.deliverFiles(files, `${this.stem()}_gomulu_goruntuler.zip`);
   }
 
   // ============================================================ Düzen
   async undo() {
     const label = await this.engine.call("undo");
-    if (label) toast("Geri alındı: " + label);
+    if (label) toast(t("Geri alındı: {label}", { label: t(label) }));
     this.app.clearObject();
     this.app.clearSelection();
   }
 
   async redo() {
     const label = await this.engine.call("redo");
-    if (label) toast("Yinelendi: " + label);
+    if (label) toast(t("Yinelendi: {label}", { label: t(label) }));
     this.app.clearObject();
   }
 
@@ -404,52 +405,62 @@ export class Commands {
         ta.remove();
       }
     }
-    toast(ok ? "Kopyalandı" : "Kopyalanamadı", { error: !ok });
+    toast(ok ? t("Kopyalandı") : t("Kopyalanamadı"), { error: !ok });
   }
 
   async findReplace() {
-    const v = await form("Bul ve değiştir", [
-      { key: "needle", type: "text", label: "Aranan", value: this.app.search.query || (this.app.selection ? this.app.selection.text : "") },
-      { key: "repl", type: "text", label: "Yeni metin" },
-      { key: "cs", type: "check", label: "Büyük/küçük harf duyarlı", value: settings.searchCase },
-      { key: "ww", type: "check", label: "Yalnızca tam kelimeler", value: settings.searchWhole },
-      { key: "style", type: "check", label: "Özgün yazı tipi ve rengi koru", value: true },
+    const v = await form(t("Bul ve değiştir"), [
+      { key: "needle", type: "text", label: t("Aranan"), value: this.app.search.query || (this.app.selection ? this.app.selection.text : "") },
+      { key: "repl", type: "text", label: t("Yeni metin") },
+      { key: "cs", type: "check", label: t("Büyük/küçük harf duyarlı"), value: settings.searchCase },
+      { key: "ww", type: "check", label: t("Yalnızca tam kelimeler"), value: settings.searchWhole },
+      { key: "style", type: "check", label: t("Özgün yazı tipi ve rengi koru"), value: true },
       this.pagesField(),
-      { type: "info", value: "Eski metin gerçekten kaldırılır (redaksiyon) ve yenisi sayfa içeriğine yazılır." },
-    ], { ok: "Tümünü değiştir", validate: (x) => (!x.needle ? "Aranan metin boş" : null) });
+      { type: "info", value: t("Eski metin gerçekten kaldırılır (redaksiyon) ve yenisi sayfa içeriğine yazılır.") },
+    ], { ok: t("Tümünü değiştir"), validate: (x) => (!x.needle ? t("Aranan metin boş") : null) });
     if (!v) return;
     const n = await this.act(() => this.engine.call("replaceAll", v.needle, v.repl, {
       caseSensitive: v.cs, wholeWords: v.ww, pages: v.pages, matchStyle: v.style,
       style: { family: settings.tool.fontFamily, size: settings.tool.fontsize, color: settings.tool.textColor },
-    }), "Değiştiriliyor…");
-    toast(n ? `${n} yer değiştirildi` : "Eşleşme bulunamadı");
+    }), t("Değiştiriliyor…"));
+    toast(n ? tn("{n} yer değiştirildi", n) : t("Eşleşme bulunamadı"));
   }
 
   async metadata() {
     const m = await this.engine.call("getMetadata");
-    const v = await form("Belge özellikleri", [
-      { key: "title", label: "Başlık", value: m.title },
-      { key: "author", label: "Yazar", value: m.author },
-      { key: "subject", label: "Konu", value: m.subject },
-      { key: "keywords", label: "Anahtar kelimeler", value: m.keywords },
-      { key: "creator", label: "Oluşturan", value: m.creator },
-      { key: "producer", label: "Üretici", value: m.producer },
-      { type: "info", value: `PDF sürümü: ${m.format || "?"} · Şifreleme: ${m.encryption && m.encryption !== "None" ? m.encryption : "yok"}` },
-    ], { ok: "Kaydet" });
+    const v = await form(t("Belge özellikleri"), [
+      { key: "title", label: t("Başlık"), value: m.title },
+      { key: "author", label: t("Yazar"), value: m.author },
+      { key: "subject", label: t("Konu"), value: m.subject },
+      { key: "keywords", label: t("Anahtar kelimeler"), value: m.keywords },
+      { key: "creator", label: t("Oluşturan"), value: m.creator },
+      { key: "producer", label: t("Üretici"), value: m.producer },
+      { type: "info", value: t("PDF sürümü: {format} · Şifreleme: {enc}", { format: m.format || "?", enc: m.encryption && m.encryption !== "None" ? m.encryption : t("yok") }) },
+    ], { ok: t("Kaydet") });
     if (v) await this.call("setMetadata", v);
   }
 
   // ============================================================ Görünüm
   async chooseLayout() {
-    const v = await form("Sayfa düzeni", [{ key: "l", type: "radio", value: this.app.viewer.layoutMode, options: [["continuous", "Sürekli"], ["single", "Tek sayfa"], ["double", "Çift sayfa"], ["cover", "Çift sayfa (kapaklı)"]] }]);
+    const v = await form(t("Sayfa düzeni"), [{ key: "l", type: "radio", value: this.app.viewer.layoutMode, options: [["continuous", t("Sürekli")], ["single", t("Tek sayfa")], ["double", t("Çift sayfa")], ["cover", t("Çift sayfa (kapaklı)")]] }]);
     if (v) {
       this.app.viewer.setLayout(v.l);
       saveSettings();
     }
   }
 
+  /** Görünüm → Dil (masaüstüyle aynı seçenekler). Dil anında değişir; açık belge korunur. */
+  async chooseLanguage() {
+    const v = await form(t("Dil"), [{
+      key: "lang", type: "radio", value: settings.language,
+      options: [["system", t("Sistem dili")], ...Object.entries(LANGUAGES)],
+    }]);
+    if (!v || v.lang === settings.language) return;
+    this.app.setLanguage(v.lang);
+  }
+
   async gotoPage() {
-    const v = await promptBox("Sayfaya git", `Sayfa numarası (1–${this.total})`, String(this.cur + 1), { type: "number" });
+    const v = await promptBox(t("Sayfaya git"), t("Sayfa numarası (1–{n})", { n: this.total }), String(this.cur + 1), { type: "number" });
     if (v === null || v === "") return;
     this.app.viewer.goto(Math.round(+v) - 1);
   }
@@ -473,17 +484,17 @@ export class Commands {
   async insertPage() {
     const presets = this.app.consts.pagePresets;
     const cur = this.app.viewer.pages[this.cur];
-    const v = await form("Boş sayfa ekle", [
-      { key: "preset", type: "select", label: "Boyut", options: ["Geçerli sayfayla aynı", ...Object.keys(presets), "Özel"], value: "Geçerli sayfayla aynı" },
-      { key: "w", type: "number", label: "Genişlik (pt)", value: Math.round(cur.width), show: (x) => x.preset === "Özel" },
-      { key: "h", type: "number", label: "Yükseklik (pt)", value: Math.round(cur.height), show: (x) => x.preset === "Özel" },
-      { key: "land", type: "check", label: "Yatay", show: (x) => x.preset !== "Geçerli sayfayla aynı" },
-      { key: "n", type: "number", label: "Adet", value: 1, min: 1, max: 200 },
-      { key: "where", type: "select", label: "Konum", numeric: true, value: 0, options: [[0, `Geçerli sayfadan sonra (${this.cur + 1})`], [1, `Geçerli sayfadan önce (${this.cur + 1})`], [2, "Belgenin sonuna"], [3, "Belgenin başına"]] },
-    ], { ok: "Ekle" });
+    const v = await form(t("Boş sayfa ekle"), [
+      { key: "preset", type: "select", label: t("Boyut"), options: [["same", t("Geçerli sayfayla aynı")], ...Object.keys(presets).map((k) => [k, t(k)]), ["custom", t("Özel")]], value: "same" },
+      { key: "w", type: "number", label: t("Genişlik (pt)"), value: Math.round(cur.width), show: (x) => x.preset === "custom" },
+      { key: "h", type: "number", label: t("Yükseklik (pt)"), value: Math.round(cur.height), show: (x) => x.preset === "custom" },
+      { key: "land", type: "check", label: t("Yatay"), show: (x) => x.preset !== "same" },
+      { key: "n", type: "number", label: t("Adet"), value: 1, min: 1, max: 200 },
+      { key: "where", type: "select", label: t("Konum"), numeric: true, value: 0, options: [[0, t("Geçerli sayfadan sonra ({n})", { n: this.cur + 1 })], [1, t("Geçerli sayfadan önce ({n})", { n: this.cur + 1 })], [2, t("Belgenin sonuna")], [3, t("Belgenin başına")]] },
+    ], { ok: t("Ekle") });
     if (!v) return;
-    let [w, hh] = v.preset === "Özel" ? [v.w || 595, v.h || 842] : v.preset === "Geçerli sayfayla aynı" ? [cur.width, cur.height] : presets[v.preset];
-    if (v.land && v.preset !== "Geçerli sayfayla aynı" && hh > w) [w, hh] = [hh, w];
+    let [w, hh] = v.preset === "custom" ? [v.w || 595, v.h || 842] : v.preset === "same" ? [cur.width, cur.height] : presets[v.preset];
+    if (v.land && v.preset !== "same" && hh > w) [w, hh] = [hh, w];
     const at = [this.cur + 1, this.cur, this.total, 0][v.where];
     await this.call("insertBlank", at, w, hh, Math.max(1, v.n || 1));
     this.app.viewer.goto(at);
@@ -492,7 +503,7 @@ export class Commands {
   async imagesAsPages() {
     const files = await this.app.bridge.openFiles({ kind: "image", multiple: true });
     if (!files.length) return;
-    const n = await this.act(() => this.engine.call("insertImagesAsPages", files.map((f) => ({ name: f.name, bytes: f.bytes })), this.cur + 1), "Görüntüler ekleniyor…");
+    const n = await this.act(() => this.engine.call("insertImagesAsPages", files.map((f) => ({ name: f.name, bytes: f.bytes })), this.cur + 1), t("Görüntüler ekleniyor…"));
     toast(`${n} sayfa eklendi`);
   }
 
@@ -502,16 +513,16 @@ export class Commands {
       return;
     }
     const label = pages.length === 1 ? `${pages[0] + 1}. sayfa` : `${pages.length} sayfa`;
-    if (!(await confirmBox("Sayfa sil", `${label} silinsin mi? (Geri alınabilir)`, { ok: "Sil", danger: true }))) return;
+    if (!(await confirmBox(t("Sayfa sil"), t("{what} silinsin mi? (Geri alınabilir)", { what: label }), { ok: t("Sil"), danger: true }))) return;
     await this.call("deletePages", pages);
     this.panels.clearPicked();
   }
 
   async movePages() {
-    const v = await form("Sayfaları taşı", [
-      { key: "pages", type: "text", label: "Taşınacak sayfalar", value: String(this.cur + 1), placeholder: "örn. 3-5, 8" },
-      { key: "to", type: "number", label: `Hangi sayfanın önüne? (1–${this.total + 1}; sona taşımak için ${this.total + 1})`, value: 1 },
-    ], { ok: "Taşı" });
+    const v = await form(t("Sayfaları taşı"), [
+      { key: "pages", type: "text", label: t("Taşınacak sayfalar"), value: String(this.cur + 1), placeholder: t("örn. 3-5, 8") },
+      { key: "to", type: "number", label: t("Hangi sayfanın önüne? (1–{n}; sona taşımak için {n})", { n: this.total + 1 }), value: 1 },
+    ], { ok: t("Taşı") });
     if (!v) return;
     const pages = parsePages(v.pages, this.total);
     if (!pages.length) return;
@@ -520,56 +531,56 @@ export class Commands {
 
   async resizePages() {
     const presets = this.app.consts.pagePresets;
-    const v = await form("Sayfa boyutunu değiştir", [
-      { key: "preset", type: "select", label: "Yeni boyut", options: [...Object.keys(presets), "Özel"], value: "A4 (595 x 842)" },
-      { key: "w", type: "number", label: "Genişlik (pt)", value: 595, show: (x) => x.preset === "Özel" },
-      { key: "h", type: "number", label: "Yükseklik (pt)", value: 842, show: (x) => x.preset === "Özel" },
-      { key: "land", type: "check", label: "Yatay" },
-      this.pagesField("pages", "Sayfalar", "current"),
-      { type: "info", value: "İçerik yeni boyuta ölçeklenir. Açıklamalar korunmaz (masaüstü sürümdeki gibi)." },
-    ], { ok: "Uygula" });
+    const v = await form(t("Sayfa boyutunu değiştir"), [
+      { key: "preset", type: "select", label: t("Yeni boyut"), options: [...Object.keys(presets).map((k) => [k, t(k)]), ["custom", t("Özel")]], value: "A4 (595 x 842)" },
+      { key: "w", type: "number", label: t("Genişlik (pt)"), value: 595, show: (x) => x.preset === "custom" },
+      { key: "h", type: "number", label: t("Yükseklik (pt)"), value: 842, show: (x) => x.preset === "custom" },
+      { key: "land", type: "check", label: t("Yatay") },
+      this.pagesField("pages", t("Sayfalar"), "current"),
+      { type: "info", value: t("İçerik yeni boyuta ölçeklenir. Açıklamalar korunmaz (masaüstü sürümdeki gibi).") },
+    ], { ok: t("Uygula") });
     if (!v || !v.pages.length) return;
-    let [w, hh] = v.preset === "Özel" ? [v.w || 595, v.h || 842] : presets[v.preset];
+    let [w, hh] = v.preset === "custom" ? [v.w || 595, v.h || 842] : presets[v.preset];
     if (v.land) [w, hh] = [Math.max(w, hh), Math.min(w, hh)];
-    await this.act(() => this.engine.call("resizePages", v.pages, w, hh), "Sayfalar yeniden boyutlanıyor…");
+    await this.act(() => this.engine.call("resizePages", v.pages, w, hh), t("Sayfalar yeniden boyutlanıyor…"));
   }
 
   async merge() {
     const files = await this.app.bridge.openFiles({ kind: "doc", multiple: true });
     if (!files.length) return;
-    const v = await form("PDF birleştir", [
+    const v = await form(t("PDF birleştir"), [
       { type: "info", value: files.map((f) => "• " + f.name).join("\n") },
-      { key: "where", type: "select", label: "Nereye eklensin?", numeric: true, value: 0, options: [[0, "Belgenin sonuna"], [1, `Geçerli sayfadan sonra (${this.cur + 1})`], [2, "Belgenin başına"]] },
-    ], { ok: "Birleştir" });
+      { key: "where", type: "select", label: t("Nereye eklensin?"), numeric: true, value: 0, options: [[0, t("Belgenin sonuna")], [1, t("Geçerli sayfadan sonra ({n})", { n: this.cur + 1 })], [2, t("Belgenin başına")]] },
+    ], { ok: t("Birleştir") });
     if (!v) return;
     const at = [this.total, this.cur + 1, 0][v.where];
     await this._mergeFiles(files, at);
   }
 
   async split() {
-    const v = await form("PDF'i böl", [
-      { key: "mode", type: "radio", value: "every", options: [["every", "Her N sayfada bir böl"], ["ranges", "Aralıklara göre böl (örn. 1-3, 4-8, 9-)"]] },
+    const v = await form(t("PDF'i böl"), [
+      { key: "mode", type: "radio", value: "every", options: [["every", t("Her N sayfada bir böl")], ["ranges", t("Aralıklara göre böl (örn. 1-3, 4-8, 9-)")]] },
       { key: "n", type: "number", label: "N", value: 1, min: 1, show: (x) => x.mode === "every" },
-      { key: "ranges", type: "text", label: "Aralıklar", placeholder: "1-3, 4-8, 9-", show: (x) => x.mode === "ranges" },
-    ], { ok: "Böl" });
+      { key: "ranges", type: "text", label: t("Aralıklar"), placeholder: "1-3, 4-8, 9-", show: (x) => x.mode === "ranges" },
+    ], { ok: t("Böl") });
     if (!v) return;
     const stem = this.stem();
     let parts;
-    if (v.mode === "every") parts = await this.act(() => this.engine.call("splitEvery", Math.max(1, v.n || 1), stem), "Bölünüyor…");
+    if (v.mode === "every") parts = await this.act(() => this.engine.call("splitEvery", Math.max(1, v.n || 1), stem), t("Bölünüyor…"));
     else {
       const ranges = parseRanges(v.ranges, this.total);
       if (!ranges.length) { toast("Geçerli bir aralık girin", { error: true }); return; }
-      parts = await this.act(() => this.engine.call("splitByRanges", ranges, stem), "Bölünüyor…");
+      parts = await this.act(() => this.engine.call("splitByRanges", ranges, stem), t("Bölünüyor…"));
     }
     await this.deliverFiles(parts, `${stem}_bolumler.zip`);
   }
 
   async extractPages() {
     const sel = this.panels.selectedPages();
-    const v = await form("Sayfaları çıkar", [
-      { key: "pages", type: "pages", label: "Sayfalar", total: this.total, current: this.cur, value: sel.length > 1 ? "range" : "current", range: sel.length > 1 ? sel.map((p) => p + 1).join(",") : "" },
-      { key: "del", type: "check", label: "Çıkardıktan sonra bu belgeden sil" },
-    ], { ok: "Çıkar" });
+    const v = await form(t("Sayfaları çıkar"), [
+      { key: "pages", type: "pages", label: t("Sayfalar"), total: this.total, current: this.cur, value: sel.length > 1 ? "range" : "current", range: sel.length > 1 ? sel.map((p) => p + 1).join(",") : "" },
+      { key: "del", type: "check", label: t("Çıkardıktan sonra bu belgeden sil") },
+    ], { ok: t("Çıkar") });
     if (!v || !v.pages.length) return;
     const bytes = await this.act(() => this.engine.call("extractPages", v.pages));
     const name = `${this.stem()}_sayfa_${v.pages.length === 1 ? v.pages[0] + 1 : v.pages[0] + 1 + "-" + (v.pages[v.pages.length - 1] + 1)}.pdf`;
@@ -579,44 +590,44 @@ export class Commands {
 
   // ============================================================ Ekle
   async watermark() {
-    const v = await form("Filigran", [
-      { key: "kind", type: "seg", label: "Tür", value: "text", options: [["text", "Metin"], ["image", "Görüntü"]] },
-      { key: "text", label: "Metin", value: "GİZLİ", show: (x) => x.kind === "text" },
-      { key: "family", type: "select", label: "Yazı tipi", options: this.app.fontFamilies, value: "Helvetica", show: (x) => x.kind === "text" },
-      { key: "size", type: "number", label: "Punto", value: 60, show: (x) => x.kind === "text" },
-      { key: "color", type: "color", label: "Renk", value: [0.6, 0.6, 0.6], show: (x) => x.kind === "text" },
-      { key: "angle", type: "range", label: "Açı", value: 45, min: -90, max: 90, format: (x) => x + "°", show: (x) => x.kind === "text" },
-      { key: "scale", type: "range", label: "Ölçek", value: 50, min: 5, max: 100, format: (x) => "%" + x, show: (x) => x.kind === "image" },
-      { key: "opacity", type: "range", label: "Saydamlık", value: 25, min: 5, max: 100, format: (x) => "%" + x },
-      { key: "behind", type: "check", label: "İçeriğin arkasına yerleştir" },
+    const v = await form(t("Filigran"), [
+      { key: "kind", type: "seg", label: t("Tür"), value: "text", options: [["text", t("Metin")], ["image", t("Görüntü")]] },
+      { key: "text", label: "Metin", value: t("GİZLİ"), show: (x) => x.kind === "text" },
+      { key: "family", type: "select", label: t("Yazı tipi"), options: this.app.fontFamilies, value: "Helvetica", show: (x) => x.kind === "text" },
+      { key: "size", type: "number", label: t("Punto"), value: 60, show: (x) => x.kind === "text" },
+      { key: "color", type: "color", label: t("Renk"), value: [0.6, 0.6, 0.6], show: (x) => x.kind === "text" },
+      { key: "angle", type: "range", label: t("Açı"), value: 45, min: -90, max: 90, format: (x) => x + "°", show: (x) => x.kind === "text" },
+      { key: "scale", type: "range", label: t("Ölçek"), value: 50, min: 5, max: 100, format: (x) => "%" + x, show: (x) => x.kind === "image" },
+      { key: "opacity", type: "range", label: t("Saydamlık"), value: 25, min: 5, max: 100, format: (x) => "%" + x },
+      { key: "behind", type: "check", label: t("İçeriğin arkasına yerleştir") },
       this.pagesField(),
-    ], { ok: "Uygula", validate: (x) => (x.kind === "text" && !x.text.trim() ? "Metin boş" : null) });
+    ], { ok: t("Uygula"), validate: (x) => (x.kind === "text" && !x.text.trim() ? t("Metin boş") : null) });
     if (!v || !v.pages.length) return;
     if (v.kind === "text") {
-      await this.act(() => this.engine.call("addTextWatermark", v.text, v.pages, { fontsize: v.size || 48, color: v.color, opacity: v.opacity / 100, angle: v.angle, family: v.family, behind: v.behind }), "Filigran ekleniyor…");
+      await this.act(() => this.engine.call("addTextWatermark", v.text, v.pages, { fontsize: v.size || 48, color: v.color, opacity: v.opacity / 100, angle: v.angle, family: v.family, behind: v.behind }), t("Filigran ekleniyor…"));
     } else {
       const files = await this.app.bridge.openFiles({ kind: "image" });
       if (!files.length) return;
-      await this.act(() => this.engine.call("addImageWatermark", files[0].bytes, v.pages, { opacity: v.opacity / 100, scale: v.scale / 100, behind: v.behind }), "Filigran ekleniyor…");
+      await this.act(() => this.engine.call("addImageWatermark", files[0].bytes, v.pages, { opacity: v.opacity / 100, scale: v.scale / 100, behind: v.behind }), t("Filigran ekleniyor…"));
     }
   }
 
   async pageNumbers() {
-    const v = await form("Sayfa numarası / üst-alt bilgi", [
-      { key: "num", type: "check", label: "Sayfa numarası ekle", value: true },
-      { key: "fmt", type: "select", label: "Numara biçimi", options: PAGE_FORMATS, value: "{n} / {total}", show: (x) => x.num },
-      { key: "pos", type: "select", label: "Konum", options: POSITIONS, value: "alt-orta", show: (x) => x.num },
-      { key: "start", type: "number", label: "Başlangıç no", value: 1, show: (x) => x.num },
-      { key: "size", type: "number", label: "Punto", value: 10 },
-      { key: "color", type: "color", label: "Renk", value: [0, 0, 0] },
-      { key: "margin", type: "number", label: "Kenar boşluğu (pt)", value: 28 },
-      { key: "header", label: "Üst bilgi", placeholder: "(isteğe bağlı)" },
-      { key: "footer", label: "Alt bilgi", placeholder: "(isteğe bağlı)" },
+    const v = await form(t("Sayfa numarası / üst-alt bilgi"), [
+      { key: "num", type: "check", label: t("Sayfa numarası ekle"), value: true },
+      { key: "fmt", type: "select", label: t("Numara biçimi"), options: PAGE_FORMATS.map((f) => [f, t(f)]), value: "{n} / {total}", show: (x) => x.num },
+      { key: "pos", type: "select", label: t("Konum"), options: POSITIONS.map(([k, l]) => [k, t(l)]), value: "alt-orta", show: (x) => x.num },
+      { key: "start", type: "number", label: t("Başlangıç no"), value: 1, show: (x) => x.num },
+      { key: "size", type: "number", label: t("Punto"), value: 10 },
+      { key: "color", type: "color", label: t("Renk"), value: [0, 0, 0] },
+      { key: "margin", type: "number", label: t("Kenar boşluğu (pt)"), value: 28 },
+      { key: "header", label: t("Üst bilgi"), placeholder: t("(isteğe bağlı)") },
+      { key: "footer", label: t("Alt bilgi"), placeholder: t("(isteğe bağlı)") },
       this.pagesField(),
-    ], { ok: "Uygula" });
+    ], { ok: t("Uygula") });
     if (!v || !v.pages.length) return;
     await this.act(async () => {
-      if (v.num) await this.engine.call("addPageNumbers", v.pages, { fmt: v.fmt, position: v.pos, fontsize: v.size || 10, color: v.color, margin: v.margin ?? 28, startAt: v.start ?? 1 });
+      if (v.num) await this.engine.call("addPageNumbers", v.pages, { fmt: t(v.fmt), position: v.pos, fontsize: v.size || 10, color: v.color, margin: v.margin ?? 28, startAt: v.start ?? 1 });
       if (v.header || v.footer) await this.engine.call("addHeaderFooter", v.pages, { header: v.header, footer: v.footer, fontsize: Math.max(6, (v.size || 10) - 1), color: v.color, margin: Math.max(8, (v.margin ?? 28) - 4) });
     });
   }
@@ -644,7 +655,7 @@ export class Commands {
   }
 
   async formFlatten() {
-    if (!(await confirmBox("Formu düzleştir", "Form alanları sayfa içeriğine gömülecek ve artık düzenlenemeyecek. Devam edilsin mi?"))) return;
+    if (!(await confirmBox(t("Formu düzleştir"), t("Form alanları sayfa içeriğine gömülecek ve artık düzenlenemeyecek. Devam edilsin mi?")))) return;
     await this.call("flattenForms");
   }
 
@@ -656,9 +667,9 @@ export class Commands {
       this.app.setTool(T.REDACT);
       return;
     }
-    const ok = await confirmBox("Karartmaları uygula", `${marks.length} alandaki metin, görüntü ve grafikler kalıcı olarak silinecek ve üzeri boyanacak.\n\nBelge kaydedildiğinde bu içerik geri getirilemez.`, { ok: "Uygula", danger: true });
+    const ok = await confirmBox(t("Karartmaları uygula"), tn("{n} alandaki metin, görüntü ve grafikler kalıcı olarak silinecek ve üzeri boyanacak.\n\nBelge kaydedildiğinde bu içerik geri getirilemez.", marks.length), { ok: t("Uygula"), danger: true });
     if (!ok) return;
-    await this.act(() => this.engine.call("redactAreas", marks, { fill: settings.tool.redactFill, removeImages: true }), "Karartılıyor…");
+    await this.act(() => this.engine.call("redactAreas", marks, { fill: settings.tool.redactFill, removeImages: true }), t("Karartılıyor…"));
     this.app.redactMarks = [];
     this.app.updateFloat();
     toast("Karartma uygulandı");
@@ -674,37 +685,37 @@ export class Commands {
   }
 
   async flatten() {
-    if (!(await confirmBox("Açıklamaları düzleştir", "Tüm açıklamalar ve form alanları sayfa içeriğine gömülecek. Devam edilsin mi?"))) return;
+    if (!(await confirmBox(t("Açıklamaları düzleştir"), t("Tüm açıklamalar ve form alanları sayfa içeriğine gömülecek. Devam edilsin mi?")))) return;
     await this.call("flatten", { annots: true, widgets: true });
   }
 
   async clearAnnots() {
-    if (!(await confirmBox("Tüm açıklamaları kaldır", "Belgedeki tüm açıklamalar silinecek (geri alınabilir).", { ok: "Kaldır", danger: true }))) return;
+    if (!(await confirmBox(t("Tüm açıklamaları kaldır"), t("Belgedeki tüm açıklamalar silinecek (geri alınabilir)."), { ok: t("Kaldır"), danger: true }))) return;
     const n = await this.call("clearAnnots", null);
-    toast(`${n} açıklama kaldırıldı`);
+    toast(tn("{n} açıklama kaldırıldı", n));
   }
 
   async compress() {
-    const v = await form("Boyut küçült", [
-      { key: "dpi", type: "select", label: "Görüntü çözünürlüğü", numeric: true, value: 150, options: [[0, "Değiştirme"], [300, "300 DPI (baskı)"], [200, "200 DPI"], [150, "150 DPI (önerilen)"], [96, "96 DPI (ekran)"], [72, "72 DPI (en küçük)"]] },
-      { key: "q", type: "range", label: "JPEG kalitesi", value: 70, min: 20, max: 95, format: (x) => "%" + x },
-      { key: "subset", type: "check", label: "Yazı tiplerini alt kümele", value: true },
-      { type: "info", value: "Açık belge değişmez; küçültülmüş kopya ayrı dosya olarak kaydedilir." },
-    ], { ok: "Küçült" });
+    const v = await form(t("Boyut küçült"), [
+      { key: "dpi", type: "select", label: t("Görüntü çözünürlüğü"), numeric: true, value: 150, options: [[0, t("Değiştirme")], [300, t("300 DPI (baskı)")], [200, t("200 DPI")], [150, t("150 DPI (önerilen)")], [96, t("96 DPI (ekran)")], [72, t("72 DPI (en küçük)")]] },
+      { key: "q", type: "range", label: t("JPEG kalitesi"), value: 70, min: 20, max: 95, format: (x) => "%" + x },
+      { key: "subset", type: "check", label: t("Yazı tiplerini alt kümele"), value: true },
+      { type: "info", value: t("Açık belge değişmez; küçültülmüş kopya ayrı dosya olarak kaydedilir.") },
+    ], { ok: t("Küçült") });
     if (!v) return;
-    const r = await this.act(() => this.engine.call("compress", { imageDpi: v.dpi, jpegQuality: v.q, subsetFonts: v.subset }), "Küçültülüyor…");
-    const pct = Math.round((1 - r.after / r.before) * 100);
-    const go = await confirmBox("Boyut küçültüldü", `${fmtBytes(r.before)} → ${fmtBytes(r.after)} (${pct > 0 ? "%" + pct + " küçük" : "küçülme yok"})\n${r.images} görüntü yeniden sıkıştırıldı.`, { ok: "Kaydet / paylaş" });
+    const r = await this.act(() => this.engine.call("compress", { imageDpi: v.dpi, jpegQuality: v.q, subsetFonts: v.subset }), t("Küçültülüyor…"));
+    const saving = Math.round((1 - r.after / r.before) * 100);
+    const go = await confirmBox(t("Boyut küçültüldü"), t("{before} → {after} ({change})\n{images} görüntü yeniden sıkıştırıldı.", { before: fmtBytes(r.before), after: fmtBytes(r.after), images: r.images, change: saving > 0 ? t("{p} küçük", { p: pct(saving) }) : t("küçülme yok") }), { ok: t("Kaydet / paylaş") });
     if (go) await this.app.deliver(`${this.stem()}_kucuk.pdf`, r.bytes, "application/pdf");
   }
 
   async sanitize() {
-    const v = await form("Belgeyi temizle", [
-      { key: "metadata", type: "check", label: "Meta veriyi kaldır (yazar, başlık, XMP)", value: true },
-      { key: "js", type: "check", label: "JavaScript ve otomatik eylemleri kaldır", value: true },
-      { key: "attachments", type: "check", label: "Gömülü dosyaları ve ekleri kaldır" },
-      { key: "links", type: "check", label: "Tüm bağlantıları kaldır" },
-    ], { ok: "Temizle" });
+    const v = await form(t("Belgeyi temizle"), [
+      { key: "metadata", type: "check", label: t("Meta veriyi kaldır (yazar, başlık, XMP)"), value: true },
+      { key: "js", type: "check", label: t("JavaScript ve otomatik eylemleri kaldır"), value: true },
+      { key: "attachments", type: "check", label: t("Gömülü dosyaları ve ekleri kaldır") },
+      { key: "links", type: "check", label: t("Tüm bağlantıları kaldır") },
+    ], { ok: t("Temizle") });
     if (v) {
       await this.call("sanitize", v);
       toast("Belge temizlendi");
@@ -712,8 +723,8 @@ export class Commands {
   }
 
   async docInfo() {
-    const rows = await this.act(() => this.engine.call("documentReport", { path: this.engine.state.name }), "İnceleniyor…");
-    await tableDialog("Belge bilgisi", rows);
+    const rows = await this.act(() => this.engine.call("documentReport", { path: this.engine.state.name }), t("İnceleniyor…"));
+    await tableDialog(t("Belge bilgisi"), rows);
   }
 
   async ocr() {
@@ -729,15 +740,15 @@ export class Commands {
       case T.ELLIPSE:
         return this.act(() => this.engine.call("addShape", pno, tool, [r[0], r[1]], [r[2], r[3]], { color: st.color, fill: st.fill, width: st.width, opacity: st.opacity, author: settings.author }));
       case T.FREETEXT: {
-        const v = await form("Metin kutusu (açıklama)", [
+        const v = await form(t("Metin kutusu (açıklama)"), [
           { key: "text", type: "textarea", label: "Metin", rows: 3 },
-          { key: "font", type: "seg", label: "Yazı tipi", value: ["Helvetica", "Times", "Courier"].includes(st.fontFamily) ? st.fontFamily : "Helvetica", options: [["Helvetica", "Helvetica"], ["Times", "Times"], ["Courier", "Courier"]] },
-          { key: "size", type: "number", label: "Punto", value: st.fontsize },
-          { key: "color", type: "color", label: "Metin rengi", value: st.textColor },
-          { key: "fill", type: "color", label: "Arka plan", value: st.fill, allowNone: true },
-          { key: "border", type: "range", label: "Kenarlık", value: 0, min: 0, max: 6, step: 0.5, format: (x) => x + " pt" },
-          { key: "align", type: "seg", label: "Hizalama", value: st.align < 3 ? st.align : 0, options: [[0, "Sola"], [1, "Ortala"], [2, "Sağa"]] },
-        ], { ok: "Ekle", validate: (x) => (!x.text.trim() ? "Metin boş" : null) });
+          { key: "font", type: "seg", label: t("Yazı tipi"), value: ["Helvetica", "Times", "Courier"].includes(st.fontFamily) ? st.fontFamily : "Helvetica", options: [["Helvetica", "Helvetica"], ["Times", "Times"], ["Courier", "Courier"]] },
+          { key: "size", type: "number", label: t("Punto"), value: st.fontsize },
+          { key: "color", type: "color", label: t("Metin rengi"), value: st.textColor },
+          { key: "fill", type: "color", label: t("Arka plan"), value: st.fill, allowNone: true },
+          { key: "border", type: "range", label: t("Kenarlık"), value: 0, min: 0, max: 6, step: 0.5, format: (x) => x + " pt" },
+          { key: "align", type: "seg", label: t("Hizalama"), value: st.align < 3 ? st.align : 0, options: [[0, t("Sola")], [1, t("Ortala")], [2, t("Sağa")]] },
+        ], { ok: t("Ekle"), validate: (x) => (!x.text.trim() ? t("Metin boş") : null) });
         if (!v) return;
         Object.assign(st, { fontsize: v.size || 12, textColor: v.color });
         saveSettings();
@@ -746,18 +757,18 @@ export class Commands {
       case T.IMAGE: {
         const files = await A.bridge.openFiles({ kind: "image" });
         if (!files.length) return;
-        return this.act(() => this.engine.call("placeImage", pno, r, files[0].bytes, { label: "Görüntü ekle" }));
+        return this.act(() => this.engine.call("placeImage", pno, r, files[0].bytes, { label: t("Görüntü ekle") }));
       }
       case T.SIGNATURE: {
         let png = settings.signature ? b64ToBytes(settings.signature) : null;
         if (png) {
-          const choice = await form("İmza", [{ key: "c", type: "radio", value: "saved", options: [["saved", "Kayıtlı imzamı kullan"], ["new", "Yeni imza oluştur"]] }], { ok: "Devam" });
+          const choice = await form(t("İmza"), [{ key: "c", type: "radio", value: "saved", options: [["saved", t("Kayıtlı imzamı kullan")], ["new", t("Yeni imza oluştur")]] }], { ok: t("Devam") });
           if (!choice) return;
           if (choice.c === "new") png = null;
         }
         if (!png) png = await signatureDialog(A);
         if (!png) return;
-        return this.act(() => this.engine.call("placeImage", pno, r, png, { label: "İmza ekle" }));
+        return this.act(() => this.engine.call("placeImage", pno, r, png, { label: t("İmza ekle") }));
       }
       case T.STAMP:
         return this.act(() => this.engine.call("addStamp", pno, r, st.stampIndex, { opacity: st.opacity, author: settings.author }));
@@ -773,10 +784,10 @@ export class Commands {
         A.updateFloat();
         return;
       case T.CROP: {
-        const v = await form("Sayfayı kırp", [
-          { type: "info", value: `Yeni sınır: ${Math.round(r[2] - r[0])} × ${Math.round(r[3] - r[1])} pt` },
-          { key: "pages", type: "pages", label: "Uygulanacak sayfalar", total: this.total, current: pno, value: "current" },
-        ], { ok: "Kırp" });
+        const v = await form(t("Sayfayı kırp"), [
+          { type: "info", value: t("Yeni sınır: {w} × {h} pt", { w: Math.round(r[2] - r[0]), h: Math.round(r[3] - r[1]) }) },
+          { key: "pages", type: "pages", label: t("Uygulanacak sayfalar"), total: this.total, current: pno, value: "current" },
+        ], { ok: t("Kırp") });
         if (!v || !v.pages.length) return;
         return this.act(() => this.engine.call("cropPages", v.pages, r, pno));
       }
@@ -788,12 +799,12 @@ export class Commands {
         return;
       }
       case T.ERASE_AREA: {
-        const v = await form("Alanı sil", [
-          { type: "info", value: "Seçilen alandaki içerik sayfadan kalıcı olarak kaldırılır (geri alınabilir)." },
-          { key: "images", type: "check", label: "Görüntüleri de sil" },
-          { key: "graphics", type: "check", label: "Çizgi ve şekilleri de sil" },
-          { key: "bg", type: "color", label: "Alanı boya", value: null, allowNone: true },
-        ], { ok: "Sil" });
+        const v = await form(t("Alanı sil"), [
+          { type: "info", value: t("Seçilen alandaki içerik sayfadan kalıcı olarak kaldırılır (geri alınabilir).") },
+          { key: "images", type: "check", label: t("Görüntüleri de sil") },
+          { key: "graphics", type: "check", label: t("Çizgi ve şekilleri de sil") },
+          { key: "bg", type: "color", label: t("Alanı boya"), value: null, allowNone: true },
+        ], { ok: t("Sil") });
         if (!v) return;
         return this.act(() => this.engine.call("deleteTextRegion", pno, r, { background: v.bg, removeImages: v.images, removeGraphics: v.graphics }));
       }
@@ -802,14 +813,14 @@ export class Commands {
       case T.FORM_TEXT:
       case T.FORM_CHECK: {
         const isCheck = tool === T.FORM_CHECK;
-        const v = await form(isCheck ? "Onay kutusu ekle" : "Form alanı ekle", [
-          { key: "kind", type: "select", label: "Tür", value: isCheck ? "checkbox" : "text", options: isCheck ? [["checkbox", "Onay kutusu"], ["radio", "Seçenek düğmesi"]] : [["text", "Metin kutusu"], ["multiline", "Çok satırlı metin"], ["combobox", "Açılır liste"], ["listbox", "Liste"], ["signature", "İmza alanı"]] },
-          { key: "name", label: "Alan adı", value: isCheck ? "onay" : "alan" },
-          { key: "value", label: "Varsayılan değer", show: (x) => ["text", "multiline", "combobox"].includes(x.kind) },
-          { key: "options", type: "textarea", label: "Seçenekler (her satıra bir tane)", rows: 4, show: (x) => x.kind === "combobox" || x.kind === "listbox" },
-          { key: "on", type: "check", label: "İşaretli başlasın", show: (x) => x.kind === "checkbox" || x.kind === "radio" },
-          { key: "size", type: "number", label: "Punto", value: 11, show: (x) => !["checkbox", "radio", "signature"].includes(x.kind) },
-        ], { ok: "Ekle", validate: (x) => (!x.name.trim() ? "Alan adı gerekli" : null) });
+        const v = await form(isCheck ? t("Onay kutusu ekle") : t("Form alanı ekle"), [
+          { key: "kind", type: "select", label: t("Tür"), value: isCheck ? "checkbox" : "text", options: isCheck ? [["checkbox", t("Onay kutusu")], ["radio", t("Seçenek düğmesi")]] : [["text", t("Metin kutusu")], ["multiline", t("Çok satırlı metin")], ["combobox", t("Açılır liste")], ["listbox", t("Liste")], ["signature", t("İmza alanı")]] },
+          { key: "name", label: t("Alan adı"), value: isCheck ? "onay" : "alan" },
+          { key: "value", label: t("Varsayılan değer"), show: (x) => ["text", "multiline", "combobox"].includes(x.kind) },
+          { key: "options", type: "textarea", label: t("Seçenekler (her satıra bir tane)"), rows: 4, show: (x) => x.kind === "combobox" || x.kind === "listbox" },
+          { key: "on", type: "check", label: t("İşaretli başlasın"), show: (x) => x.kind === "checkbox" || x.kind === "radio" },
+          { key: "size", type: "number", label: t("Punto"), value: 11, show: (x) => !["checkbox", "radio", "signature"].includes(x.kind) },
+        ], { ok: t("Ekle"), validate: (x) => (!x.name.trim() ? t("Alan adı gerekli") : null) });
         if (!v) return;
         const kind = v.kind === "multiline" ? "text" : v.kind;
         const opts = { kind, name: v.name.trim(), fontsize: v.size || 11, multiline: v.kind === "multiline", options: (v.options || "").split("\n").map((s) => s.trim()).filter(Boolean) };
@@ -851,7 +862,7 @@ export class Commands {
   }
 
   async addNote(pno, pt) {
-    const text = await promptBox("Yapışkan not", "Not metni", "", { type: "textarea" });
+    const text = await promptBox(t("Yapışkan not"), t("Not metni"), "", { type: "textarea" });
     if (text === null) return;
     const st = settings.tool;
     await this.act(() => this.engine.call("addStickyNote", pno, [pt[0] - 10, pt[1] - 10], text, { icon: st.noteIcon, color: [1, 0.85, 0.3], author: settings.author }));
@@ -864,7 +875,7 @@ export class Commands {
       return;
     }
     await this.act(() => this.engine.call("deleteAnnot", pno, a.id));
-    toast(`${a.typeName} silindi`);
+    toast(t("{type} silindi", { type: t(a.typeName) }));
   }
 
   async editTextAt(pno, pt) {
@@ -876,7 +887,7 @@ export class Commands {
     this.app.hoverBlock = null;
     const v = await textEditDialog(this.app, block);
     if (!v) return;
-    const ok = await this.act(() => this.engine.call("replaceRegionText", pno, block.bbox, v.text, v.style, { baseline: block.baseline, background: v.background, grow: v.grow }), "Metin düzenleniyor…");
+    const ok = await this.act(() => this.engine.call("replaceRegionText", pno, block.bbox, v.text, v.style, { baseline: block.baseline, background: v.background, grow: v.grow }), t("Metin düzenleniyor…"));
     if (!ok) toast("Metin kutuya tam sığmadı; punto küçültüldü", { error: true });
   }
 
@@ -896,20 +907,20 @@ export class Commands {
     const mm = 25.4 / 72;
     const papers = this.app.consts.papers;
     const { body, values } = formBody([
-      { type: "info", value: `Sayfa ${pno + 1} · seçili alan ${Math.round(aw * mm)} × ${Math.round(ah * mm)} mm` },
-      { key: "mode", type: "radio", label: "Ölçek", value: "fit", options: [["fit", "Kâğıda sığdır"], ["actual", "Gerçek boyut (%100)"], ["custom", "Özel ölçek"]] },
-      { key: "noUp", type: "check", label: "Küçük alanları büyütme (en fazla %100)", show: (x) => x.mode === "fit" },
-      { key: "pct", type: "range", label: "Özel ölçek", value: 150, min: 10, max: 1000, step: 5, format: (x) => "%" + x, show: (x) => x.mode === "custom" },
-      { key: "paper", type: "select", label: "Kâğıt", options: Object.keys(papers), value: Object.keys(papers)[0] },
-      { key: "orient", type: "seg", label: "Yön", value: "auto", options: [["auto", "Otomatik"], ["portrait", "Dikey"], ["landscape", "Yatay"]] },
-      { key: "center", type: "check", label: "Kâğıdın ortasına yerleştir", value: true },
-      { key: "marks", type: "check", label: "Kesim işaretleri ekle (köşelere ince çizgi)" },
-      { key: "pages", type: "pages", label: "Aynı alanı şu sayfalarda bas", total: this.total, current: pno, value: "current" },
-      { type: "info", value: "Her sayfadaki aynı bölge ayrı bir kâğıda basılır (etiket, fiş, form kesiti gibi). “PDF olarak kaydet” alanı gerçek boyutta, vektör kalitesinde kaydeder; metin seçilebilir kalır, açıklamalar dahildir. Baskı önizlemesini sistemin yazdırma penceresi gösterir." },
+      { type: "info", value: t("Sayfa {n} · seçili alan {w} × {h} mm", { n: pno + 1, w: Math.round(aw * mm), h: Math.round(ah * mm) }) },
+      { key: "mode", type: "radio", label: t("Ölçek"), value: "fit", options: [["fit", t("Kâğıda sığdır")], ["actual", t("Gerçek boyut (%100)")], ["custom", t("Özel ölçek")]] },
+      { key: "noUp", type: "check", label: t("Küçük alanları büyütme (en fazla %100)"), show: (x) => x.mode === "fit" },
+      { key: "pct", type: "range", label: t("Özel ölçek"), value: 150, min: 10, max: 1000, step: 5, format: (x) => "%" + x, show: (x) => x.mode === "custom" },
+      { key: "paper", type: "select", label: t("Kâğıt"), options: Object.keys(papers).map((k) => [k, t(k)]), value: Object.keys(papers)[0] },
+      { key: "orient", type: "seg", label: t("Yön"), value: "auto", options: [["auto", t("Otomatik")], ["portrait", t("Dikey")], ["landscape", t("Yatay")]] },
+      { key: "center", type: "check", label: t("Kâğıdın ortasına yerleştir"), value: true },
+      { key: "marks", type: "check", label: t("Kesim işaretleri ekle (köşelere ince çizgi)") },
+      { key: "pages", type: "pages", label: t("Aynı alanı şu sayfalarda bas"), total: this.total, current: pno, value: "current" },
+      { type: "info", value: t("Her sayfadaki aynı bölge ayrı bir kâğıda basılır (etiket, fiş, form kesiti gibi). “PDF olarak kaydet” alanı gerçek boyutta, vektör kalitesinde kaydeder; metin seçilebilir kalır, açıklamalar dahildir. Baskı önizlemesini sistemin yazdırma penceresi gösterir.") },
     ]);
     const action = await openSheet({
-      title: "Seçili alanı yazdır", body,
-      buttons: [{ label: "Vazgeç", value: null }, { label: "PDF olarak kaydet", value: "pdf" }, { label: "Önizle ve yazdır", primary: true, value: "print" }],
+      title: t("Seçili alanı yazdır"), body,
+      buttons: [{ label: t("Vazgeç"), value: null }, { label: t("PDF olarak kaydet"), value: "pdf" }, { label: t("Önizle ve yazdır"), primary: true, value: "print" }],
     });
     if (!action) return;
     const v = values();
@@ -920,14 +931,14 @@ export class Commands {
     const items = v.pages.map((p) => ({ pno: p, rect: area }));
     const name = `${this.stem()}_alan_s${pno + 1}.pdf`;
     if (action === "pdf") {
-      const bytes = await this.act(() => this.engine.call("areaPdf", items, { paper: null }), "Alan hazırlanıyor…");
+      const bytes = await this.act(() => this.engine.call("areaPdf", items, { paper: null }), t("Alan hazırlanıyor…"));
       await this.app.deliver(name, bytes, "application/pdf");
       return;
     }
     const bytes = await this.act(() => this.engine.call("areaPdf", items, {
       paper: papers[v.paper], orientation: v.orient, mode: v.mode, scale: v.pct / 100,
       upscale: !v.noUp, center: v.center, marks: v.marks,
-    }), "Baskı hazırlanıyor…");
+    }), t("Baskı hazırlanıyor…"));
     // Yazdırma penceresi de aynı kâğıt ve yönle açılsın (motorun kuralıyla aynı)
     const landscape = v.orient === "landscape" || (v.orient === "auto" && aw > ah);
     await this.app.bridge.writeFile("print", { name, mime: "application/pdf", media: v.paper.split(" ")[0], landscape }, bytes);
@@ -961,7 +972,7 @@ export class Commands {
     const l = links.find((x) => pt[0] >= x.rect[0] && pt[0] <= x.rect[2] && pt[1] >= x.rect[1] && pt[1] <= x.rect[3]);
     if (!l) return false;
     if (l.uri) {
-      if (await confirmBox("Bağlantıyı aç", `Bu adres tarayıcıda açılsın mı?\n\n${l.uri}`, { ok: "Aç" })) this.app.bridge.openUrl(l.uri);
+      if (await confirmBox(t("Bağlantıyı aç"), t("Bu adres tarayıcıda açılsın mı?\n\n{url}", { url: l.uri }), { ok: t("Aç") })) this.app.bridge.openUrl(l.uri);
     } else if (l.page >= 0) {
       this.app.viewer.goto(l.page);
     }
@@ -981,7 +992,7 @@ export class Commands {
       if (!v) return;
       value = v.v;
     } else if (f.type === "text") {
-      const v = await form(f.label || f.name, [{ key: "v", type: f.multiline ? "textarea" : "text", value: f.value, label: f.maxLen ? `En çok ${f.maxLen} karakter` : "" }]);
+      const v = await form(f.label || f.name, [{ key: "v", type: f.multiline ? "textarea" : "text", value: f.value, label: f.maxLen ? t("En çok {n} karakter", { n: f.maxLen }) : "" }]);
       if (!v) return;
       value = f.maxLen ? v.v.slice(0, f.maxLen) : v.v;
     } else if (f.type === "signature") {
@@ -1046,23 +1057,23 @@ export class Commands {
     const A = this.app;
     const items = [];
     if (A.selection && A.selection.text) {
-      items.push({ label: "Kopyala", icon: "copy", action: () => this.copy() },
-        { label: "Vurgula", icon: "highlight", action: () => this.markupSelection("highlight") },
-        { label: "Altını çiz", icon: "underline", action: () => this.markupSelection("underline") },
-        { label: "Üstünü çiz", icon: "strikeout", action: () => this.markupSelection("strikeout") }, "-");
+      items.push({ label: t("Kopyala"), icon: "copy", action: () => this.copy() },
+        { label: t("Vurgula"), icon: "highlight", action: () => this.markupSelection("highlight") },
+        { label: t("Altını çiz"), icon: "underline", action: () => this.markupSelection("underline") },
+        { label: t("Üstünü çiz"), icon: "strikeout", action: () => this.markupSelection("strikeout") }, "-");
     }
     items.push(
-      { label: "Bu metni düzenle…", icon: "text-edit", action: () => this.editTextAt(pno, hit.pt) },
-      { label: "Buraya not ekle…", icon: "note", action: () => this.addNote(pno, hit.pt) },
-      { label: "Bir alanı yazdır…", icon: "print-area", action: () => this.startPrintArea() },
+      { label: t("Bu metni düzenle…"), icon: "text-edit", action: () => this.editTextAt(pno, hit.pt) },
+      { label: t("Buraya not ekle…"), icon: "note", action: () => this.addNote(pno, hit.pt) },
+      { label: t("Bir alanı yazdır…"), icon: "print-area", action: () => this.startPrintArea() },
       "-",
-      { label: "Boş sayfa ekle…", icon: "page-add", action: () => { A.viewer.goto(pno); this.insertPage(); } },
-      { label: "Bu sayfayı çoğalt", icon: "page-copy", action: () => this.call("duplicatePages", [pno]) },
-      { label: "Bu sayfayı döndür", icon: "rotate-right", action: () => this.call("rotatePages", [pno], 90) },
-      { label: "Bu sayfayı sil", icon: "page-delete", danger: true, action: () => this.deletePages([pno]) },
+      { label: t("Boş sayfa ekle…"), icon: "page-add", action: () => { A.viewer.goto(pno); this.insertPage(); } },
+      { label: t("Bu sayfayı çoğalt"), icon: "page-copy", action: () => this.call("duplicatePages", [pno]) },
+      { label: t("Bu sayfayı döndür"), icon: "rotate-right", action: () => this.call("rotatePages", [pno], 90) },
+      { label: t("Bu sayfayı sil"), icon: "page-delete", danger: true, action: () => this.deletePages([pno]) },
       "-",
-      { label: "Genişliğe sığdır", icon: "fit-width", action: () => A.viewer.fit("width") },
-      { label: "Sayfaya sığdır", icon: "fit-page", action: () => A.viewer.fit("page") },
+      { label: t("Genişliğe sığdır"), icon: "fit-width", action: () => A.viewer.fit("width") },
+      { label: t("Sayfaya sığdır"), icon: "fit-page", action: () => A.viewer.fit("page") },
     );
     contextMenu(x, y, items);
   }

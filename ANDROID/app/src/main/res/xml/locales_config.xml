@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 13+ "Uygulama dili" ayarında görünen diller (masaüstüyle aynı) -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="tr" />
+    <locale android:name="en" />
+    <locale android:name="pt-BR" />
+</locale-config>

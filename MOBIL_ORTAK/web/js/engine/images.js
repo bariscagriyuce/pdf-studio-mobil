@@ -7,6 +7,9 @@ import { withPage, redactRects, REDACT } from "./textedit.js";
 import { PageWriter } from "./writer.js";
 import { EngineError } from "./engine.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 /** Sayfada görünen görüntüler: [{ index, rect, width, height, bpc, colorspace }] */
 function walkImages(doc, pno, fn) {
   return withPage(doc, pno, (page) => {
@@ -75,7 +78,7 @@ function imageToPng(image) {
 /** Görüntüyü PNG olarak çıkarır. */
 export function extractImage(E, pno, index) {
   const found = walkImages(E.doc, pno, (i, rect, image) => (i === index ? imageToPng(image) : null)).find(Boolean);
-  if (!found) throw new EngineError("Görüntü bulunamadı", "image");
+  if (!found) throw new EngineError(N_("Görüntü bulunamadı"), "image");
   return found;
 }
 
@@ -127,16 +130,16 @@ export function drawImage(ctx, pno, rect, bytes, { keepProportion = true, overla
   return box;
 }
 
-export function placeImage(E, pno, rect, bytes, { label = "Görüntü ekle", keepProportion = true, overlay = true, opacity = 1 } = {}) {
+export function placeImage(E, pno, rect, bytes, { label = N_("Görüntü ekle"), keepProportion = true, overlay = true, opacity = 1 } = {}) {
   return E.edit(label, [pno], () => drawImage(E, pno, rect, bytes, { keepProportion, overlay, opacity }));
 }
 
 export function deleteImage(E, pno, rect) {
-  return E.edit("Görüntüyü sil", [pno], () => removeImagesIn(E, pno, rect));
+  return E.edit(N_("Görüntüyü sil"), [pno], () => removeImagesIn(E, pno, rect));
 }
 
 export function replaceImage(E, pno, rect, bytes, { keepProportion = true } = {}) {
-  return E.edit("Görüntüyü değiştir", [pno], () => {
+  return E.edit(N_("Görüntüyü değiştir"), [pno], () => {
     removeImagesIn(E, pno, rect);
     drawImage(E, pno, rect, bytes, { keepProportion });
   });
@@ -145,9 +148,9 @@ export function replaceImage(E, pno, rect, bytes, { keepProportion = true } = {}
 /** Görüntüyü kaldırıp yeni konum/boyutta yeniden yerleştirir. */
 export function moveResizeImage(E, pno, oldRect, newRect, { keepProportion = true } = {}) {
   const img = largestOverlap(E, pno, oldRect);
-  if (!img) throw new EngineError("Görüntü bulunamadı", "image");
+  if (!img) throw new EngineError(N_("Görüntü bulunamadı"), "image");
   const png = extractImage(E, pno, img.index);
-  return E.edit("Görüntüyü taşı/boyutlandır", [pno], () => {
+  return E.edit(N_("Görüntüyü taşı/boyutlandır"), [pno], () => {
     removeImagesIn(E, pno, img.rect);
     return drawImage(E, pno, newRect, png, { keepProportion });
   });

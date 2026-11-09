@@ -8,9 +8,12 @@ import { EngineError } from "./engine.js";
 import { isWinAnsi } from "./fonts.js";
 import { wrapLines, ASCENT, DESCENT } from "./writer.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const FIELD_TYPE_NAMES = {
-  button: "Düğme", checkbox: "Onay kutusu", combobox: "Açılır liste", listbox: "Liste",
-  radiobutton: "Seçenek düğmesi", signature: "İmza", text: "Metin kutusu",
+  button: N_("Düğme"), checkbox: N_("Onay kutusu"), combobox: N_("Açılır liste"), listbox: N_("Liste"),
+  radiobutton: N_("Seçenek düğmesi"), signature: N_("İmza"), text: N_("Metin kutusu"),
 };
 
 function widgetId(w) {
@@ -147,7 +150,7 @@ async function fieldStyle(E, values) {
 
 export async function setValue(E, pno, id, value) {
   const st = await fieldStyle(E, [value]);
-  return E.edit("Form alanını doldur", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Form alanını doldur"), [pno], () => withPage(E.doc, pno, (page) => {
     for (const w of page.getWidgets()) {
       if (widgetId(w) === id) return applyValue(E, st, w, value);
     }
@@ -159,7 +162,7 @@ export async function setValue(E, pno, id, value) {
 export async function setValues(E, values) {
   const st = await fieldStyle(E, Object.values(values));
   let n = 0;
-  E.edit("Formu doldur", null, () => {
+  E.edit(N_("Formu doldur"), null, () => {
     for (let pno = 0; pno < E.pageCount; pno++) {
       withPage(E.doc, pno, (page) => {
         for (const w of page.getWidgets()) {
@@ -187,7 +190,7 @@ export async function importJson(E, text) {
   try {
     data = JSON.parse(text);
   } catch {
-    throw new EngineError("JSON dosyası okunamadı", "json");
+    throw new EngineError(N_("JSON dosyası okunamadı"), "json");
   }
   return setValues(E, data);
 }
@@ -268,7 +271,7 @@ export function addField(E, pno, rect, {
   maxLen = 0, multiline = false,
 } = {}) {
   const fieldName = uniqueName(E, name || "alan");
-  return E.edit("Form alanı ekle", [pno], (doc) => {
+  return E.edit(N_("Form alanı ekle"), [pno], (doc) => {
     const af = ensureAcroForm(doc);
     const page = doc.loadPage(pno);
     let ref;
@@ -351,7 +354,7 @@ function removeFromArray(arrObj, num) {
 }
 
 export function deleteField(E, pno, id) {
-  return E.edit("Form alanını sil", [pno], (doc) => {
+  return E.edit(N_("Form alanını sil"), [pno], (doc) => {
     withPage(doc, pno, (page) => {
       const po = page.getObject();
       removeFromArray(po.get("Annots"), id);
@@ -375,5 +378,5 @@ export function deleteField(E, pno, id) {
 }
 
 export function flattenForms(E) {
-  return E.edit("Formu düzleştir", null, (doc) => doc.bake(false, true));
+  return E.edit(N_("Formu düzleştir"), null, (doc) => doc.bake(false, true));
 }

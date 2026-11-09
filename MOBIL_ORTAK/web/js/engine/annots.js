@@ -5,12 +5,15 @@ import * as G from "./geom.js";
 import { withPage } from "./textedit.js";
 import { EngineError } from "./engine.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const TYPE_NAMES = {
-  Text: "Yapışkan not", FreeText: "Serbest metin", Line: "Çizgi", Square: "Dikdörtgen",
-  Circle: "Elips", Polygon: "Çokgen", PolyLine: "Çoklu çizgi", Highlight: "Vurgu",
-  Underline: "Altı çizili", Squiggly: "Dalgalı", StrikeOut: "Üstü çizili", Stamp: "Damga",
-  Caret: "Şapka", Ink: "Serbest çizim", FileAttachment: "Dosya eki", Redact: "Karartma",
-  Widget: "Form alanı", Link: "Bağlantı", Popup: "Açılır not", Sound: "Ses", Movie: "Film",
+  Text: N_("Yapışkan not"), FreeText: N_("Serbest metin"), Line: N_("Çizgi"), Square: N_("Dikdörtgen"),
+  Circle: N_("Elips"), Polygon: N_("Çokgen"), PolyLine: N_("Çoklu çizgi"), Highlight: N_("Vurgu"),
+  Underline: N_("Altı çizili"), Squiggly: N_("Dalgalı"), StrikeOut: N_("Üstü çizili"), Stamp: N_("Damga"),
+  Caret: N_("Şapka"), Ink: N_("Serbest çizim"), FileAttachment: N_("Dosya eki"), Redact: N_("Karartma"),
+  Widget: N_("Form alanı"), Link: N_("Bağlantı"), Popup: N_("Açılır not"), Sound: N_("Ses"), Movie: N_("Film"),
 };
 
 export const STAMP_TEXTS = [
@@ -20,16 +23,16 @@ export const STAMP_TEXTS = [
 ];
 
 export const STAMP_LABELS = {
-  Approved: "Onaylandı", AsIs: "Olduğu gibi", Confidential: "Gizli", Departmental: "Birim içi",
-  Draft: "Taslak", Experimental: "Deneysel", Expired: "Süresi doldu", Final: "Son hâli",
-  ForComment: "Görüşe", ForPublicRelease: "Kamuya açık", NotApproved: "Onaylanmadı",
-  NotForPublicRelease: "Kamuya kapalı", Sold: "Satıldı", TopSecret: "Çok gizli",
+  Approved: N_("Onaylandı"), AsIs: N_("Olduğu gibi"), Confidential: N_("Gizli"), Departmental: N_("Birim içi"),
+  Draft: N_("Taslak"), Experimental: N_("Deneysel"), Expired: N_("Süresi doldu"), Final: N_("Son hâli"),
+  ForComment: N_("Görüşe"), ForPublicRelease: N_("Kamuya açık"), NotApproved: N_("Onaylanmadı"),
+  NotForPublicRelease: N_("Kamuya kapalı"), Sold: N_("Satıldı"), TopSecret: N_("Çok gizli"),
 };
 
 export const NOTE_ICONS = ["Note", "Comment", "Key", "Help", "NewParagraph", "Paragraph", "Insert"];
 
 const MARKUP = { highlight: "Highlight", underline: "Underline", strikeout: "StrikeOut", squiggly: "Squiggly" };
-const MARKUP_LABELS = { highlight: "Vurgu", underline: "Altını çiz", strikeout: "Üstünü çiz", squiggly: "Dalgalı çizgi" };
+const MARKUP_LABELS = { highlight: N_("Vurgu"), underline: N_("Altını çiz"), strikeout: N_("Üstünü çiz"), squiggly: N_("Dalgalı çizgi") };
 const SKIP_TYPES = new Set(["Widget", "Popup", "Link"]);
 
 // ------------------------------------------------------------ yardımcılar
@@ -75,7 +78,7 @@ export function annotInfo(pno, a) {
 
 function findAnnot(page, id) {
   for (const a of page.getAnnotations()) if (annotId(a) === id) return a;
-  throw new EngineError("Açıklama bulunamadı", "annot");
+  throw new EngineError(N_("Açıklama bulunamadı"), "annot");
 }
 
 function finish(a, { color, fill, opacity, width, author, content, subject } = {}) {
@@ -122,7 +125,7 @@ export function annotAt(E, pno, pt, tolerance = 4) {
 
 // ------------------------------------------------------------------ işaretleme
 export function addMarkup(E, pno, kind, quads, { color = [1, 0.85, 0.2], opacity = 1, author = "", content = "" } = {}) {
-  if (!quads || !quads.length) throw new EngineError("Seçili metin yok", "selection");
+  if (!quads || !quads.length) throw new EngineError(N_("Seçili metin yok"), "selection");
   return E.edit(MARKUP_LABELS[kind], [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation(MARKUP[kind]);
     a.setQuadPoints(quads);
@@ -131,7 +134,7 @@ export function addMarkup(E, pno, kind, quads, { color = [1, 0.85, 0.2], opacity
 }
 
 export function addStickyNote(E, pno, point, text, { icon = "Note", color = [1, 0.85, 0.3], author = "" } = {}) {
-  return E.edit("Yapışkan not", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Yapışkan not"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation("Text");
     a.setRect([point[0], point[1], point[0] + 20, point[1] + 20]);
     a.setIcon(icon);
@@ -145,7 +148,7 @@ export function addFreeText(E, pno, rect, text, {
   fontsize = 12, font = "Helvetica", textColor = [0, 0, 0], fillColor = null, borderWidth = 0,
   align = 0, opacity = 1, author = "",
 } = {}) {
-  return E.edit("Serbest metin kutusu", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Serbest metin kutusu"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation("FreeText");
     a.setRect(G.norm(rect));
     a.setContents(text);
@@ -163,7 +166,7 @@ export function addFreeText(E, pno, rect, text, {
 export function addInk(E, pno, strokes, { color = [0.9, 0.1, 0.1], width = 2, opacity = 1, author = "" } = {}) {
   const hand = strokes.filter((s) => s.length > 1).map((s) => s.map((p) => [+p[0], +p[1]]));
   if (!hand.length) return null;
-  return E.edit("Serbest çizim", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Serbest çizim"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation("Ink");
     a.setInkList(hand);
     return annotId(finish(a, { color, width, opacity, author }));
@@ -172,7 +175,7 @@ export function addInk(E, pno, strokes, { color = [0.9, 0.1, 0.1], width = 2, op
 
 /** kind: rect | ellipse | line | arrow | double_arrow */
 export function addShape(E, pno, kind, p0, p1, { color = [0.85, 0.1, 0.1], fill = null, width = 1.5, opacity = 1, author = "", content = "" } = {}) {
-  const label = { rect: "Dikdörtgen", ellipse: "Elips", line: "Çizgi", arrow: "Ok", double_arrow: "Çift ok", measure: "Ölçü" }[kind] || "Şekil";
+  const label = { rect: N_("Dikdörtgen"), ellipse: N_("Elips"), line: N_("Çizgi"), arrow: N_("Ok"), double_arrow: N_("Çift ok"), measure: N_("Ölçü") }[kind] || N_("Şekil");
   return E.edit(label, [pno], () => withPage(E.doc, pno, (page) => {
     let a;
     if (kind === "rect" || kind === "ellipse") {
@@ -196,7 +199,7 @@ export function addShape(E, pno, kind, p0, p1, { color = [0.85, 0.1, 0.1], fill 
 
 export function addPolygon(E, pno, points, { closed = true, color = [0.85, 0.1, 0.1], fill = null, width = 1.5, opacity = 1, author = "" } = {}) {
   if (points.length < 2) return null;
-  return E.edit(closed ? "Çokgen" : "Çoklu çizgi", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(closed ? N_("Çokgen") : N_("Çoklu çizgi"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation(closed ? "Polygon" : "PolyLine");
     a.setVertices(points);
     if (fill && closed) a.setInteriorColor(fill);
@@ -216,7 +219,7 @@ export function addStamp(E, pno, rect, stampIndex = 0, { color = [0.1, 0.4, 0.1]
 }
 
 export function addCaret(E, pno, rect, { color = [0.1, 0.3, 0.9], author = "" } = {}) {
-  return E.edit("Şapka işareti", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Şapka işareti"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = page.createAnnotation("Caret");
     const r = G.norm(rect);
     a.setRect([r[0], r[1], r[0] + 12, r[1] + 12]);
@@ -225,7 +228,7 @@ export function addCaret(E, pno, rect, { color = [0.1, 0.3, 0.9], author = "" } 
 }
 
 export function addFileAttachment(E, pno, point, name, bytes, { author = "", mime = "application/octet-stream" } = {}) {
-  return E.edit("Dosya eki", [pno], () => {
+  return E.edit(N_("Dosya eki"), [pno], () => {
     const fs = E.doc.addEmbeddedFile(name, mime, bytes, new Date(), new Date(), false);
     return withPage(E.doc, pno, (page) => {
       const a = page.createAnnotation("FileAttachment");
@@ -249,12 +252,12 @@ export function attachmentData(E, pno, id) {
 
 // -------------------------------------------------------------------- bağlantı
 export function addLink(E, pno, rect, { uri = "", targetPage = null } = {}) {
-  return E.edit("Bağlantı ekle", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Bağlantı ekle"), [pno], () => withPage(E.doc, pno, (page) => {
     let target = uri;
     if (!target && targetPage !== null) {
       target = E.doc.formatLinkURI({ type: "Fit", chapter: 0, page: targetPage, x: 0, y: 0, width: 0, height: 0, zoom: 0 });
     }
-    if (!target) throw new EngineError("Bağlantı hedefi yok", "link");
+    if (!target) throw new EngineError(N_("Bağlantı hedefi yok"), "link");
     page.createLink(G.norm(rect), target);
   }));
 }
@@ -269,7 +272,7 @@ export function listLinks(E, pno) {
 }
 
 export function deleteLink(E, pno, rect) {
-  return E.edit("Bağlantıyı sil", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Bağlantıyı sil"), [pno], () => withPage(E.doc, pno, (page) => {
     let n = 0;
     for (const l of page.getLinks()) {
       if (G.intersects(l.getBounds(), rect)) { page.deleteLink(l); n++; }
@@ -280,12 +283,12 @@ export function deleteLink(E, pno, rect) {
 
 // -------------------------------------------------------------------- düzenleme
 export function deleteAnnot(E, pno, id) {
-  return E.edit("Açıklamayı sil", [pno], () => withPage(E.doc, pno, (page) => page.deleteAnnotation(findAnnot(page, id))));
+  return E.edit(N_("Açıklamayı sil"), [pno], () => withPage(E.doc, pno, (page) => page.deleteAnnotation(findAnnot(page, id))));
 }
 
 export function deleteAnnots(E, items) {
   const pages = [...new Set(items.map((i) => i.pno))];
-  return E.edit("Açıklamaları sil", pages, () => {
+  return E.edit(N_("Açıklamaları sil"), pages, () => {
     for (const pno of pages) {
       const ids = new Set(items.filter((i) => i.pno === pno).map((i) => i.id));
       withPage(E.doc, pno, (page) => {
@@ -298,7 +301,7 @@ export function deleteAnnots(E, items) {
 export function clearAnnots(E, pages = null) {
   const rng = pages || [...Array(E.pageCount).keys()];
   let n = 0;
-  E.edit("Tüm açıklamaları kaldır", rng, () => {
+  E.edit(N_("Tüm açıklamaları kaldır"), rng, () => {
     for (const pno of rng) {
       withPage(E.doc, pno, (page) => {
         for (const a of page.getAnnotations().slice()) {
@@ -313,7 +316,7 @@ export function clearAnnots(E, pages = null) {
 }
 
 export function updateAnnot(E, pno, id, props = {}) {
-  return E.edit("Açıklamayı düzenle", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Açıklamayı düzenle"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = findAnnot(page, id);
     if (props.rect) transformAnnot(a, a.getBounds(), G.norm(props.rect));
     if (props.icon) safe(() => a.setIcon(props.icon));
@@ -357,7 +360,7 @@ function transformAnnot(a, from, to) {
 }
 
 export function moveAnnot(E, pno, id, dx, dy) {
-  return E.edit("Açıklamayı taşı", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Açıklamayı taşı"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = findAnnot(page, id);
     const b = a.getBounds();
     transformAnnot(a, b, G.offset(b, dx, dy));
@@ -366,7 +369,7 @@ export function moveAnnot(E, pno, id, dx, dy) {
 }
 
 export function resizeAnnot(E, pno, id, rect) {
-  return E.edit("Açıklamayı boyutlandır", [pno], () => withPage(E.doc, pno, (page) => {
+  return E.edit(N_("Açıklamayı boyutlandır"), [pno], () => withPage(E.doc, pno, (page) => {
     const a = findAnnot(page, id);
     transformAnnot(a, a.getBounds(), G.norm(rect));
     return annotInfo(pno, a);
@@ -375,5 +378,5 @@ export function resizeAnnot(E, pno, id, rect) {
 
 /** Açıklamaları/form alanlarını sayfa içeriğine gömer (düzenlenemez hâle getirir). */
 export function flatten(E, { annots = true, widgets = true } = {}) {
-  return E.edit("Düzleştir", null, (doc) => doc.bake(annots, widgets));
+  return E.edit(N_("Düzleştir"), null, (doc) => doc.bake(annots, widgets));
 }

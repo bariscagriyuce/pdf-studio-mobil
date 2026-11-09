@@ -6,6 +6,9 @@ import * as G from "./geom.js";
 import { normalizePdfFontname } from "./fonts.js";
 import { PageWriter, insertTextbox, measuredHeight, ASCENT } from "./writer.js";
 
+/** Arayüzde gösterilen metinleri çeviri anahtarı olarak işaretler (çevirmez). */
+const N_ = (text) => text;
+
 export const ALIGN = { sol: 0, orta: 1, "sağ": 2, "iki yana": 3 };
 
 export function withPage(doc, pno, fn) {
@@ -275,7 +278,7 @@ function doReplace(ctx, pno, rect, newText, st, opts) {
  */
 export async function replaceRegionText(E, pno, rect, newText, style, opts = {}) {
   const st = await resolveStyle(E, style, newText);
-  return E.edit(opts.label || "Metni düzenle", [pno], () => doReplace(E, pno, rect, newText, st, opts));
+  return E.edit(opts.label || N_("Metni düzenle"), [pno], () => doReplace(E, pno, rect, newText, st, opts));
 }
 
 /** Metin düzenleme penceresi için canlı önizleme: sadece o sayfanın geçici kopyası üzerinde. */
@@ -309,7 +312,7 @@ export async function previewReplace(E, pno, rect, newText, style, opts = {}, sc
   }
 }
 
-export async function insertTextBox(E, pno, rect, text, style, { label = "Metin ekle" } = {}) {
+export async function insertTextBox(E, pno, rect, text, style, { label = N_("Metin ekle") } = {}) {
   const st = await resolveStyle(E, style, text);
   return E.edit(label, [pno], () => {
     const w = new PageWriter(E, pno);
@@ -322,7 +325,7 @@ export async function insertTextBox(E, pno, rect, text, style, { label = "Metin 
   });
 }
 
-export function deleteTextRegion(E, pno, rect, { background = null, removeImages = false, removeGraphics = false, label = "Alanı sil" } = {}) {
+export function deleteTextRegion(E, pno, rect, { background = null, removeImages = false, removeGraphics = false, label = N_("Alanı sil") } = {}) {
   return E.edit(label, [pno], () => {
     redactRects(E, pno, [rect], {
       fill: background,
@@ -339,7 +342,7 @@ export function redactAreas(E, areas, { fill = [0, 0, 0], removeImages = true } 
     if (!byPage.has(a.pno)) byPage.set(a.pno, []);
     byPage.get(a.pno).push(a.rect);
   }
-  return E.edit("Karart (redaksiyon)", [...byPage.keys()], () => {
+  return E.edit(N_("Karart (redaksiyon)"), [...byPage.keys()], () => {
     for (const [pno, rects] of byPage) {
       redactRects(E, pno, rects, {
         fill,
@@ -447,7 +450,7 @@ export async function replaceAll(E, needle, replacement, opts = {}) {
   }
   if (!plan.length) return 0;
   let count = 0;
-  E.edit(`'${needle}' değiştir`, plan.map((p) => p.pno), () => {
+  E.edit(N_("Bul ve değiştir"), plan.map((p) => p.pno), () => {
     for (const { pno, items } of plan) {
       const rects = items.flatMap((it) => it.h.rects);
       redactRects(E, pno, rects, { fill: null });
