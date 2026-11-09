@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PDF Studio</string>
-    <string name="open_with">PDF Studio ile aç</string>
-    <string name="save_to">Kaydet</string>
-    <string name="share_with">Paylaş</string>
+    <!-- Görünen ad cihaz diline göre seçilir (Türkçe: values-tr). Paket kimliği değişmez. -->
+    <string name="app_name">YUCE PDF EDITOR</string>
+    <string name="share_with">Share</string>
 </resources>

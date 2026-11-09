@@ -1,4 +1,4 @@
-# PDF Studio — mobil ortak kod
+# YUCE PDF Düzenleyici — mobil ortak kod
 
 Android (`../ANDROID`) ve iOS (`../IOS`) uygulamalarının **ortak PDF motoru ve
 arayüzü**. İki platform da bu klasördeki `web/` içeriğini derleme sırasında
@@ -35,7 +35,8 @@ MOBIL_ORTAK/
         │   ├── fonts.js      yazı tipi yöneticisi (Türkçe karakter desteği)
         │   ├── annots.js     açıklamalar      ├── forms.js     formlar
         │   ├── pageops.js    sayfa işlemleri  ├── images.js    görüntüler
-        │   ├── security.js   şifreleme        └── exporting.js dışa aktarma, sıkıştırma, OCR katmanı
+        │   ├── security.js   şifreleme        ├── exporting.js dışa aktarma, sıkıştırma, OCR katmanı
+        │   └── areaprint.js  seçili alanı yazdırma / PDF olarak kaydetme
         ├── worker.js       motor arka plan iş parçacığında çalışır
         ├── bridge.js       yerel köprü sözleşmesi (Android + iOS + tarayıcı yedeği)
         └── ui/             arayüz — masaüstündeki pdfstudio/ui karşılığı
@@ -61,10 +62,10 @@ npm test
 npm run serve
 ```
 
-`npm test` gerçek bir belge üzerinde 64 sınama çalıştırır: Türkçe metin
+`npm test` gerçek bir belge üzerinde 66 sınama çalıştırır: Türkçe metin
 düzenleme, geri al/yinele, arama (İ/ı katlaması dahil), bul-değiştir, tüm
 açıklama türleri, sayfa işlemleri, form doldurma, gerçek karartma, AES-256
-şifreleme, sıkıştırma, OCR katmanı ve dışa aktarma.
+şifreleme, sıkıştırma, OCR katmanı, seçili alanı yazdırma ve dışa aktarma.
 
 `npm run serve` sonrasında arayüz tarayıcıda telefona kurmadan denenebilir
 (geliştirici araçlarında telefon görünümü önerilir).

@@ -1,7 +1,9 @@
-# PDF Studio Mobil
+# YUCE PDF Düzenleyici — Mobil
+
+*YUCE PDF EDITOR*
 
 **Android** ve **iOS / iPadOS** için Adobe Acrobat Pro benzeri PDF düzenleyici.
-Masaüstü sürüm [PDF Studio](https://github.com/bariscagriyuce/pdf-studio)
+Masaüstü sürüm [YUCE PDF Düzenleyici](https://github.com/bariscagriyuce/pdf-studio)
 (Windows / Linux) ile **aynı PDF motorunu** (MuPDF) ve aynı özellikleri
 dokunmatik kullanıma uyarlanmış bir arayüzle sunar. Tamamen çevrimdışı
 çalışır; hiçbir veri dışarı gönderilmez, uygulama İnternet izni bile istemez.
@@ -13,6 +15,11 @@ dokunmatik kullanıma uyarlanmış bir arayüzle sunar. Tamamen çevrimdışı
 | **Arayüz** | Dokunmatik, koyu/açık tema, telefon ve tablet düzeni, tamamen Türkçe |
 | **Platform** | Android 8.0+ · iOS / iPadOS 15+ |
 
+> **Ad değişikliği (1.1.0):** Uygulamanın adı *PDF Studio* iken *YUCE PDF
+> Düzenleyici* oldu; Türkçe dışındaki dillerde *YUCE PDF EDITOR* görünür.
+> Paket kimliği değişmediği için 1.0.0'ın üzerine güncellenir, ayarlar ve son
+> kullanılanlar korunur.
+
 ---
 
 ## Kurulum
@@ -21,8 +28,8 @@ dokunmatik kullanıma uyarlanmış bir arayüzle sunar. Tamamen çevrimdışı
 
 | Platform | Dosya | Kurulum |
 |---|---|---|
-| **Android** | `PDFStudio-<sürüm>.apk` | Telefona indirip açın ("bilinmeyen kaynaklardan yüklemeye izin ver" istenebilir) |
-| **iOS / iPadOS** | `PDFStudio-<sürüm>-unsigned.ipa` | [AltStore](https://altstore.io) ya da [Sideloadly](https://sideloadly.io) ile kendi Apple kimliğinizle imzalayıp yükleyin. Mac'iniz varsa Xcode ile doğrudan kurabilirsiniz (bkz. [`IOS/README.md`](IOS/README.md)). |
+| **Android** | `YUCE-PDF-Editor-<sürüm>.apk` | Telefona indirip açın ("bilinmeyen kaynaklardan yüklemeye izin ver" istenebilir) |
+| **iOS / iPadOS** | `YUCE-PDF-Editor-<sürüm>-unsigned.ipa` | [AltStore](https://altstore.io) ya da [Sideloadly](https://sideloadly.io) ile kendi Apple kimliğinizle imzalayıp yükleyin. Mac'iniz varsa Xcode ile doğrudan kurabilirsiniz (bkz. [`IOS/README.md`](IOS/README.md)). |
 
 ---
 
@@ -53,6 +60,11 @@ Masaüstü sürümün tüm özellikleri:
 - **Dışa aktarma** — PNG/JPG/WEBP görüntü (36–1200 DPI), metin/HTML/XHTML/XML/JSON,
   seçili sayfalar, gömülü görüntüler, boyut küçültme. Birden çok dosya ZIP olarak
   kaydedilir ya da paylaşılır.
+- **Seçili alanı yazdırma** — sayfada bir kutu çizin, yalnızca o bölge basılır:
+  kâğıda sığdır / gerçek boyut / özel ölçek, ortalama, kesim işaretleri, aynı
+  alanı birden çok sayfada basma (etiket, fiş, form kesiti); geniş alanlarda kâğıt
+  kendiliğinden yatay. **PDF olarak kaydet** alanı gerçek boyutta, vektör
+  kalitesinde çıkarır (metin seçilebilir, açıklamalar dahil).
 - **OCR** — taranmış sayfalara aranabilir metin katmanı (cihazda, çevrimdışı).
 - **Görüntüleme** — sürekli / tek / çift / kapaklı çift sayfa düzeni, %8–%1200
   yakınlaştırma (iki parmakla), paneller (sayfalar, yer imleri, açıklamalar, arama,
@@ -93,7 +105,7 @@ iOS: `IOS/PDFStudio.xcodeproj`'u Xcode'da açın.
   etiketten okunur (`MOBIL_ORTAK/scripts/set_version.mjs`), APK ve IPA
   *Releases* sayfasına SHA256 toplamlarıyla kalıcı olarak yüklenir.
 
-Her derleme önce ortak motorun 64 adımlık sınamasından geçer.
+Her derleme önce ortak motorun 66 adımlık sınamasından geçer.
 
 ## Lisans
 

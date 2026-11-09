@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.print.PrintAttributes
 import android.print.PrintManager
 import android.provider.OpenableColumns
 import android.util.Base64
@@ -113,7 +114,7 @@ class NativeBridge(private val activity: MainActivity) {
                 "openUrl" -> { openExternal(msg.getString("url")); reply(id, JSONObject.NULL) }
                 "copyText" -> {
                     val cm = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    cm.setPrimaryClip(ClipData.newPlainText("PDF Studio", msg.getString("text")))
+                    cm.setPrimaryClip(ClipData.newPlainText(activity.getString(R.string.app_name), msg.getString("text")))
                     reply(id, JSONObject.NULL)
                 }
                 "setTheme" -> { activity.setDarkUi(msg.optBoolean("dark")); reply(id, JSONObject.NULL) }
@@ -218,6 +219,8 @@ class NativeBridge(private val activity: MainActivity) {
         val name = sanitizeName(msg.optString("name", "belge.pdf"))
         val mime = msg.optString("mime", "application/pdf").substringBefore(';')
         val handle = msg.optString("handle", "").ifEmpty { null }
+        val media = msg.optString("media", "").ifEmpty { null }
+        val landscape = if (msg.isNull("landscape")) null else msg.optBoolean("landscape")
         io.execute {
             try { w.out.close() } catch (_: Exception) {}
             main.post {
@@ -226,7 +229,7 @@ class NativeBridge(private val activity: MainActivity) {
                         "save" -> if (handle != null) saveTo(id, w.file, Uri.parse(handle), name) else saveAs(id, w.file, name, mime)
                         "saveAs" -> saveAs(id, w.file, name, mime)
                         "share" -> share(id, w.file, name, mime)
-                        "print" -> print(id, w.file, name)
+                        "print" -> print(id, w.file, name, media, landscape)
                         else -> fail(id, "Bilinmeyen yazma kipi: $mode")
                     }
                 } catch (e: Exception) {
@@ -292,9 +295,22 @@ class NativeBridge(private val activity: MainActivity) {
         reply(id, JSONObject().put("name", name))
     }
 
-    private fun print(id: Int, src: File, name: String) {
+    private fun print(id: Int, src: File, name: String, media: String?, landscape: Boolean?) {
         val pm = activity.getSystemService(Context.PRINT_SERVICE) as PrintManager
-        pm.print(name, PdfPrintAdapter(src, name), null)
+        // Seçili alan yazdırmada kâğıt ve yön önceden seçilsin (kullanıcı değiştirebilir)
+        var attrs: PrintAttributes? = null
+        if (media != null || landscape != null) {
+            var size = when (media) {
+                "A3" -> PrintAttributes.MediaSize.ISO_A3
+                "A5" -> PrintAttributes.MediaSize.ISO_A5
+                "Letter" -> PrintAttributes.MediaSize.NA_LETTER
+                "Legal" -> PrintAttributes.MediaSize.NA_LEGAL
+                else -> PrintAttributes.MediaSize.ISO_A4
+            }
+            size = if (landscape == true) size.asLandscape() else size.asPortrait()
+            attrs = PrintAttributes.Builder().setMediaSize(size).build()
+        }
+        pm.print(name, PdfPrintAdapter(src, name), attrs)
         reply(id, JSONObject().put("name", name))
     }
 

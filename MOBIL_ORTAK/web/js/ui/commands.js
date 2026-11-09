@@ -2,7 +2,7 @@
 // Metin, Ekle, Form, Araçlar, Yardım), araçların sayfada bitirdiği işler ve
 // çekmece menü. Masaüstündeki ui/mainwindow.py'nin eylem kısmının karşılığı.
 
-import { $, h, toast, withBusy, setBusyText, form, confirmBox, promptBox, contextMenu, parsePages, parseRanges, fmtBytes, escapeHtml } from "./ui.js";
+import { $, h, toast, withBusy, setBusyText, form, formBody, openSheet, confirmBox, promptBox, contextMenu, parsePages, parseRanges, fmtBytes, escapeHtml } from "./ui.js";
 import { icon } from "./icons.js";
 import { settings, saveSettings } from "./store.js";
 import { T, LABELS, ICONS } from "./tools.js";
@@ -10,6 +10,7 @@ import { textEditDialog, textAddDialog, signatureDialog, linkDialog, tableDialog
 import { Inspector } from "./inspector.js";
 import { Panels } from "./panels.js";
 import { runOcr } from "./ocr.js";
+import { appName } from "../branding.js";
 
 const PAGE_FORMATS = ["{n}", "{n} / {total}", "- {n} -", "Sayfa {n}", "Sayfa {n} / {total}", "{n}/{total}"];
 const POSITIONS = [["alt-orta", "Alt orta"], ["alt-sağ", "Alt sağ"], ["alt-sol", "Alt sol"], ["üst-orta", "Üst orta"], ["üst-sağ", "Üst sağ"], ["üst-sol", "Üst sol"]];
@@ -102,7 +103,8 @@ export class Commands {
     add("Dosya", "export_text", "Dışa aktar: metin / HTML / XML / JSON…", () => this.exportText(), { icon: "export" });
     add("Dosya", "export_pages", "Dışa aktar: seçili sayfalar (PDF)…", () => this.extractPages(), { icon: "extract" });
     add("Dosya", "export_all_images", "Dışa aktar: gömülü görüntüler…", () => this.exportAllImages(), { icon: "image" });
-    add("Dosya", "print", "Yazdır…", () => this.print(), { icon: "print", key: "Ctrl+P" });
+    add("Dosya", "print", "Yazdır…", () => this.print(), { icon: "print", key: "Ctrl+P", short: "Yazdır" });
+    add("Dosya", "print_area", "Seçili alanı yazdır…", () => this.startPrintArea(), { icon: "print-area", key: "Ctrl+Shift+P", short: "Alanı yazdır" });
     add("Dosya", "close", "Belgeyi kapat", () => A.closeDocument(), { icon: "close", key: "Ctrl+W" });
 
     // ---------------------------------------------------------------- Düzen
@@ -189,7 +191,7 @@ export class Commands {
     const d = $("#drawer");
     d.innerHTML = "";
     const panel = h("div", { class: "drawer-panel" });
-    panel.append(h("div", { class: "drawer-head" }, h("img", { src: "img/icon.png", alt: "" }), h("b", {}, "PDF Studio")));
+    panel.append(h("div", { class: "drawer-head" }, h("img", { src: "img/icon.png", alt: "" }), h("b", {}, appName())));
     const body = h("div", { class: "drawer-body" });
     const sections = [...new Set(this.list.map((c) => c.section))];
     for (const s of sections) {
@@ -795,6 +797,8 @@ export class Commands {
         if (!v) return;
         return this.act(() => this.engine.call("deleteTextRegion", pno, r, { background: v.bg, removeImages: v.images, removeGraphics: v.graphics }));
       }
+      case T.PRINT_AREA:
+        return this.printArea(pno, r);
       case T.FORM_TEXT:
       case T.FORM_CHECK: {
         const isCheck = tool === T.FORM_CHECK;
@@ -874,6 +878,59 @@ export class Commands {
     if (!v) return;
     const ok = await this.act(() => this.engine.call("replaceRegionText", pno, block.bbox, v.text, v.style, { baseline: block.baseline, background: v.background, grow: v.grow }), "Metin düzenleniyor…");
     if (!ok) toast("Metin kutuya tam sığmadı; punto küçültüldü", { error: true });
+  }
+
+  // ------------------------------------------------------ seçili alanı yazdır
+  startPrintArea() {
+    this.app.setTool(T.PRINT_AREA);
+  }
+
+  /** Çizilen alanı yazdırır ya da ayrı bir PDF olarak kaydeder (masaüstündeki print_area). */
+  async printArea(pno, rect) {
+    const area = await this.engine.call("clampToPage", pno, rect);
+    const aw = area[2] - area[0], ah = area[3] - area[1];
+    if (!(aw >= 2 && ah >= 2)) {
+      toast("Seçili alan çok küçük ya da sayfanın dışında", { error: true });
+      return;
+    }
+    const mm = 25.4 / 72;
+    const papers = this.app.consts.papers;
+    const { body, values } = formBody([
+      { type: "info", value: `Sayfa ${pno + 1} · seçili alan ${Math.round(aw * mm)} × ${Math.round(ah * mm)} mm` },
+      { key: "mode", type: "radio", label: "Ölçek", value: "fit", options: [["fit", "Kâğıda sığdır"], ["actual", "Gerçek boyut (%100)"], ["custom", "Özel ölçek"]] },
+      { key: "noUp", type: "check", label: "Küçük alanları büyütme (en fazla %100)", show: (x) => x.mode === "fit" },
+      { key: "pct", type: "range", label: "Özel ölçek", value: 150, min: 10, max: 1000, step: 5, format: (x) => "%" + x, show: (x) => x.mode === "custom" },
+      { key: "paper", type: "select", label: "Kâğıt", options: Object.keys(papers), value: Object.keys(papers)[0] },
+      { key: "orient", type: "seg", label: "Yön", value: "auto", options: [["auto", "Otomatik"], ["portrait", "Dikey"], ["landscape", "Yatay"]] },
+      { key: "center", type: "check", label: "Kâğıdın ortasına yerleştir", value: true },
+      { key: "marks", type: "check", label: "Kesim işaretleri ekle (köşelere ince çizgi)" },
+      { key: "pages", type: "pages", label: "Aynı alanı şu sayfalarda bas", total: this.total, current: pno, value: "current" },
+      { type: "info", value: "Her sayfadaki aynı bölge ayrı bir kâğıda basılır (etiket, fiş, form kesiti gibi). “PDF olarak kaydet” alanı gerçek boyutta, vektör kalitesinde kaydeder; metin seçilebilir kalır, açıklamalar dahildir. Baskı önizlemesini sistemin yazdırma penceresi gösterir." },
+    ]);
+    const action = await openSheet({
+      title: "Seçili alanı yazdır", body,
+      buttons: [{ label: "Vazgeç", value: null }, { label: "PDF olarak kaydet", value: "pdf" }, { label: "Önizle ve yazdır", primary: true, value: "print" }],
+    });
+    if (!action) return;
+    const v = values();
+    if (!v.pages.length) {
+      toast("Geçerli bir sayfa aralığı girin", { error: true });
+      return;
+    }
+    const items = v.pages.map((p) => ({ pno: p, rect: area }));
+    const name = `${this.stem()}_alan_s${pno + 1}.pdf`;
+    if (action === "pdf") {
+      const bytes = await this.act(() => this.engine.call("areaPdf", items, { paper: null }), "Alan hazırlanıyor…");
+      await this.app.deliver(name, bytes, "application/pdf");
+      return;
+    }
+    const bytes = await this.act(() => this.engine.call("areaPdf", items, {
+      paper: papers[v.paper], orientation: v.orient, mode: v.mode, scale: v.pct / 100,
+      upscale: !v.noUp, center: v.center, marks: v.marks,
+    }), "Baskı hazırlanıyor…");
+    // Yazdırma penceresi de aynı kâğıt ve yönle açılsın (motorun kuralıyla aynı)
+    const landscape = v.orient === "landscape" || (v.orient === "auto" && aw > ah);
+    await this.app.bridge.writeFile("print", { name, mime: "application/pdf", media: v.paper.split(" ")[0], landscape }, bytes);
   }
 
   // ------------------------------------------------------------ seç aracı
@@ -997,6 +1054,7 @@ export class Commands {
     items.push(
       { label: "Bu metni düzenle…", icon: "text-edit", action: () => this.editTextAt(pno, hit.pt) },
       { label: "Buraya not ekle…", icon: "note", action: () => this.addNote(pno, hit.pt) },
+      { label: "Bir alanı yazdır…", icon: "print-area", action: () => this.startPrintArea() },
       "-",
       { label: "Boş sayfa ekle…", icon: "page-add", action: () => { A.viewer.goto(pno); this.insertPage(); } },
       { label: "Bu sayfayı çoğalt", icon: "page-copy", action: () => this.call("duplicatePages", [pno]) },

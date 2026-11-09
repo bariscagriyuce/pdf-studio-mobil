@@ -13,6 +13,7 @@
 		5D1A00000000000000000104 /* NativeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000004 /* NativeBridge.swift */; };
 		5D1A00000000000000000106 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000006 /* Assets.xcassets */; };
 		5D1A00000000000000000107 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000007 /* www */; };
+		5D1A00000000000000000109 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D1A00000000000000000209 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		5D1A00000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D1A00000000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5D1A00000000000000000007 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+		5D1A00000000000000000009 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5D1A00000000000000000008 /* PDFStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -54,6 +56,7 @@
 				5D1A00000000000000000004 /* NativeBridge.swift */,
 				5D1A00000000000000000006 /* Assets.xcassets */,
 				5D1A00000000000000000005 /* Info.plist */,
+				5D1A00000000000000000209 /* InfoPlist.strings */,
 				5D1A00000000000000000007 /* www */,
 			);
 			path = PDFStudio;
@@ -68,6 +71,17 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXVariantGroup section */
+		5D1A00000000000000000209 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5D1A00000000000000000009 /* tr */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXNativeTarget section */
 		5D1A00000000000000000300 /* PDFStudio */ = {
@@ -105,11 +119,11 @@
 			};
 			buildConfigurationList = 5D1A00000000000000000601 /* Build configuration list for PBXProject "PDFStudio" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = tr;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				tr,
 				en,
+				tr,
 				Base,
 			);
 			mainGroup = 5D1A00000000000000000200;
@@ -129,6 +143,7 @@
 			files = (
 				5D1A00000000000000000106 /* Assets.xcassets in Resources */,
 				5D1A00000000000000000107 /* www in Resources */,
+				5D1A00000000000000000109 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,7 +251,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pdfstudio.mobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -261,7 +276,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pdfstudio.mobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;

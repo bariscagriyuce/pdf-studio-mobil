@@ -7,11 +7,11 @@ export const T = {
   NOTE: "note", FREETEXT: "freetext", INK: "ink", ERASER: "eraser", RECT: "rect", ELLIPSE: "ellipse",
   LINE: "line", ARROW: "arrow", POLYGON: "polygon", IMAGE: "image", SIGNATURE: "signature",
   STAMP: "stamp", LINK: "link", REDACT: "redact", ERASE_AREA: "erase_area", CROP: "crop",
-  FORM_TEXT: "form_text", FORM_CHECK: "form_check", MEASURE: "measure",
+  FORM_TEXT: "form_text", FORM_CHECK: "form_check", MEASURE: "measure", PRINT_AREA: "print_area",
 };
 
 /** Sürükleyerek dikdörtgen çizen araçlar */
-export const RECT_TOOLS = new Set([T.FREETEXT, T.RECT, T.ELLIPSE, T.IMAGE, T.SIGNATURE, T.STAMP, T.LINK, T.REDACT, T.CROP, T.TEXT_ADD, T.ERASE_AREA, T.FORM_TEXT, T.FORM_CHECK]);
+export const RECT_TOOLS = new Set([T.FREETEXT, T.RECT, T.ELLIPSE, T.IMAGE, T.SIGNATURE, T.STAMP, T.LINK, T.REDACT, T.CROP, T.TEXT_ADD, T.ERASE_AREA, T.FORM_TEXT, T.FORM_CHECK, T.PRINT_AREA]);
 /** İki nokta arasında çizgi çizen araçlar */
 export const LINE_TOOLS = new Set([T.LINE, T.ARROW, T.MEASURE]);
 /** Metin seçimi gerektiren araçlar */
@@ -31,7 +31,7 @@ export const LABELS = {
   rect: "Dikdörtgen", ellipse: "Elips", line: "Çizgi", arrow: "Ok", polygon: "Çokgen",
   image: "Görüntü ekle", signature: "İmza yerleştir", stamp: "Damga", link: "Bağlantı",
   redact: "Karart (redaksiyon)", erase_area: "Alanı sil", crop: "Kırp", form_text: "Form: metin kutusu",
-  form_check: "Form: onay kutusu", measure: "Ölç",
+  form_check: "Form: onay kutusu", measure: "Ölç", print_area: "Alanı yazdır",
 };
 
 export const SHORT = {
@@ -39,7 +39,7 @@ export const SHORT = {
   underline: "Altı çizili", strikeout: "Üstü çizili", squiggly: "Dalgalı", note: "Not", freetext: "Metin kutusu",
   ink: "Kalem", eraser: "Silgi", rect: "Dikdörtgen", ellipse: "Elips", line: "Çizgi", arrow: "Ok",
   polygon: "Çokgen", image: "Görüntü", signature: "İmza", stamp: "Damga", link: "Bağlantı", redact: "Karart",
-  erase_area: "Alanı sil", crop: "Kırp", form_text: "Metin alanı", form_check: "Onay kutusu", measure: "Ölç",
+  erase_area: "Alanı sil", crop: "Kırp", form_text: "Metin alanı", form_check: "Onay kutusu", measure: "Ölç", print_area: "Alanı yazdır",
 };
 
 export const ICONS = {
@@ -47,7 +47,7 @@ export const ICONS = {
   underline: "underline", strikeout: "strikeout", squiggly: "squiggly", note: "note", freetext: "comment",
   ink: "pen", eraser: "eraser", rect: "rect", ellipse: "ellipse", line: "line", arrow: "arrow",
   polygon: "polygon", image: "image", signature: "signature", stamp: "stamp", link: "link", redact: "redact",
-  erase_area: "eraser", crop: "crop", form_text: "form", form_check: "check", measure: "measure",
+  erase_area: "eraser", crop: "crop", form_text: "form", form_check: "check", measure: "measure", print_area: "print-area",
 };
 
 export const HINTS = {
@@ -76,11 +76,12 @@ export const HINTS = {
   form_text: "Metin alanının yerini çizin ya da dokunun.",
   form_check: "Onay kutusunun yerine dokunun.",
   measure: "Ölçmek için iki nokta arasında sürükleyin.",
+  print_area: "Yazdırmak istediğiniz alanı çizin; yalnızca o bölge basılır.",
 };
 
 /** Alt çubuk kategorileri. Öğeler araç adı ya da "cmd:komut" olabilir. */
 export const CATEGORIES = [
-  { id: "view", label: "Görüntüle", items: ["select", "pan", "cmd:zoom_out", "cmd:zoom_in", "cmd:fit_width", "cmd:fit_page", "cmd:layout", "cmd:theme"] },
+  { id: "view", label: "Görüntüle", items: ["select", "pan", "print_area", "cmd:print", "cmd:zoom_out", "cmd:zoom_in", "cmd:fit_width", "cmd:fit_page", "cmd:layout", "cmd:theme"] },
   { id: "edit", label: "Düzenle", items: ["text_edit", "text_add", "erase_area", "image", "link", "cmd:find_replace"] },
   { id: "comment", label: "Açıklama", items: ["highlight", "underline", "strikeout", "squiggly", "note", "freetext", "stamp", "eraser"] },
   { id: "draw", label: "Çiz", items: ["ink", "rect", "ellipse", "line", "arrow", "polygon", "measure"] },

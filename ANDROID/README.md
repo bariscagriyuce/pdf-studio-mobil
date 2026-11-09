@@ -1,4 +1,4 @@
-# PDF Studio — Android
+# YUCE PDF Düzenleyici — Android
 
 Android 8.0 (API 26) ve üzeri telefon ve tabletler için. Arayüz ve PDF motoru
 `../MOBIL_ORTAK` klasöründen gelir (bkz. oradaki README); bu klasör yalnızca
@@ -25,7 +25,7 @@ cd ../MOBIL_ORTAK && npm install
 bash gradlew assembleRelease
 ```
 
-Çıktı: `app/build/outputs/apk/release/PDFStudio-<sürüm>-release.apk`.
+Çıktı: `app/build/outputs/apk/release/YUCE-PDF-Editor-<sürüm>-release.apk`.
 Derleme ortak arayüzü `app/src/main/assets/www` içine kendiliğinden kopyalar
 (`node` yolda değilse `NODE=/yol/node` verin). Android Studio ile de açılabilir.
 
@@ -56,7 +56,7 @@ APK'yı telefona indirip açın; ilk seferde "bilinmeyen kaynaklardan yüklemeye
 izin ver" istenir. Ya da USB hata ayıklama açıkken:
 
 ```bash
-adb install -r PDFStudio-1.0.0-release.apk
+adb install -r YUCE-PDF-Editor-1.1.0.apk
 ```
 
 ## Sürüm

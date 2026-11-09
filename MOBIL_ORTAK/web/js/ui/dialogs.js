@@ -5,6 +5,7 @@
 import { h, openSheet, colorPicker, toast, escapeHtml } from "./ui.js";
 import { icon } from "./icons.js";
 import { settings, saveSettings } from "./store.js";
+import { appName } from "../branding.js";
 
 const ALIGNS = [[0, "Sola", "align-left"], [1, "Ortala", "align-center"], [2, "Sağa", "align-right"], [3, "İki yana", "align-justify"]];
 
@@ -347,7 +348,7 @@ export const SHORTCUTS = [
   ["Aç / Kaydet / Farklı kaydet", "Ctrl+O · Ctrl+S · Ctrl+Shift+S"],
   ["Geri al / Yinele", "Ctrl+Z · Ctrl+Y"],
   ["Bul / sonraki / önceki sonuç", "Ctrl+F · F3 · Shift+F3"],
-  ["Yazdır", "Ctrl+P"],
+  ["Yazdır / seçili alanı yazdır", "Ctrl+P · Ctrl+Shift+P"],
   ["Yakınlaştır / uzaklaştır / %100", "Ctrl+= · Ctrl+- · Ctrl+0"],
   ["Genişliğe / sayfaya sığdır", "Ctrl+1 · Ctrl+2"],
   ["Sürekli yakınlaştırma", "Ctrl + tekerlek · iki parmak"],
@@ -378,7 +379,7 @@ export async function aboutDialog(app) {
     versions = await (await fetch("vendor/versions.json")).json();
   } catch { /* yok */ }
   const body = h("div", { style: { lineHeight: 1.55, fontSize: "14px" } },
-    h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, "PDF Studio"), h("p", {}, `Sürüm ${escapeHtml(info.version || "?")} · ${info.platform === "android" ? "Android" : info.platform === "ios" ? "iOS" : "Tarayıcı"}`))),
+    h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, appName()), h("p", {}, `Sürüm ${escapeHtml(info.version || "?")} · ${info.platform === "android" ? "Android" : info.platform === "ios" ? "iOS" : "Tarayıcı"}`))),
     h("p", {}, "Adobe Acrobat Pro benzeri PDF düzenleyici: gerçek metin düzenleme, açıklamalar, sayfa yönetimi, formlar, imza, gerçek karartma, şifreleme, OCR ve dışa aktarma. Tamamen çevrimdışı çalışır; hiçbir veri dışarı gönderilmez."),
     h("div", { class: "section-title" }, "Bileşenler"),
     h("table", { class: "kv" },

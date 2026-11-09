@@ -74,7 +74,7 @@ android {
         val variant = this
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "PDFStudio-${variant.versionName}-${variant.buildType.name}.apk"
+                "YUCE-PDF-Editor-${variant.versionName}-${variant.buildType.name}.apk"
         }
     }
 }

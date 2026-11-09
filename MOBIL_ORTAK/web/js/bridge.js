@@ -131,16 +131,17 @@ export class Bridge {
    * mode: "save"   → handle üzerine yaz (yoksa saveAs gibi davranır)
    *       "saveAs" → sistem "farklı kaydet" penceresi
    *       "share"  → paylaşım menüsü
-   *       "print"  → sistem yazdırma (PDF)
+   *       "print"  → sistem yazdırma (PDF); media ("A4", "Letter"...) ve
+   *                  landscape verilirse yazdırma penceresi o kâğıtla açılır
    * Dönüş: { handle, name } ya da iptalde null
    */
-  async writeFile(mode, { name, mime = "application/pdf", handle = null }, bytes) {
+  async writeFile(mode, { name, mime = "application/pdf", handle = null, media = null, landscape = null }, bytes) {
     if (!this.native) return this._webWrite(mode, name, mime, bytes);
     const { token } = await this.call("writeBegin", { size: bytes.length });
     for (let i = 0; i < bytes.length; i += CHUNK) {
       await this.call("writeChunk", { token, data: toBase64(bytes.subarray(i, i + CHUNK)) });
     }
-    return this.call("writeEnd", { token, mode, name, mime, handle });
+    return this.call("writeEnd", { token, mode, name, mime, handle, media, landscape });
   }
 
   async _webWrite(mode, name, mime, bytes) {

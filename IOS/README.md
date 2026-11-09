@@ -1,4 +1,4 @@
-# PDF Studio — iOS / iPadOS
+# YUCE PDF Düzenleyici — iOS / iPadOS
 
 iOS 15 ve üzeri iPhone ve iPad için. Arayüz ve PDF motoru `../MOBIL_ORTAK`
 klasöründen gelir (bkz. oradaki README); bu klasör yalnızca iOS kabuğunu içerir.

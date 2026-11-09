@@ -342,6 +342,35 @@ await check("birleştir (PDF + görüntü)", () => {
   expect(added === 4 && api.state().pageCount === n0 + 4, "eklenen " + added);
   api.deletePages([n0, n0 + 1, n0 + 2, n0 + 3]);
 });
+await check("alanı yazdır (baskı PDF'i)", () => {
+  const area = [55, 55, 420, 110];
+  const bytes = api.areaPdf([{ pno: 0, rect: area }, { pno: 2, rect: area }], { paper: [595, 842], mode: "fit", marks: true });
+  const d = new mupdf.PDFDocument(bytes);
+  expect(d.countPages() === 2, "kâğıt sayısı " + d.countPages());
+  const p0 = d.loadPage(0);
+  const b = p0.getBounds();
+  expect(b[2] > b[3], "geniş alan yatay kâğıda basılmalı: " + JSON.stringify(b));
+  const t = p0.toStructuredText().asText();
+  expect(t.trim().length > 0, "kâğıtta metin yok");
+  dump("alan_baski.pdf", bytes);
+});
+await check("alanı PDF olarak kaydet (gerçek boyut, döndürülmüş sayfa)", () => {
+  api.rotatePages([1], 90);
+  // döndürmeden sonra metnin göründüğü yerden bir alan seç
+  const hit = api.findAll("satır", { pages: [1] })[0];
+  expect(hit, "döndürülmüş sayfada metin bulunamadı");
+  const c = [(hit.rect[0] + hit.rect[2]) / 2, (hit.rect[1] + hit.rect[3]) / 2];
+  const area = [c[0] - 100, c[1] - 80, c[0] + 100, c[1] + 80];
+  const bytes = api.areaPdf([{ pno: 1, rect: area }], { paper: null });
+  const d = new mupdf.PDFDocument(bytes);
+  const pg = d.loadPage(0);
+  const b = pg.getBounds();
+  expect(Math.round(b[2]) === 200 && Math.round(b[3]) === 160, "boyut " + JSON.stringify(b));
+  expect(pg.toStructuredText().asText().includes("satır"), "alan metni seçilebilir değil");
+  const pix = pg.toPixmap(mupdf.Matrix.identity, mupdf.ColorSpace.DeviceRGB, false, true).getPixels();
+  expect(pix.some((v) => v < 128), "döndürülmüş sayfada alan boş çıktı");
+  api.rotatePages([1], -90);
+});
 await check("sıkıştır", () => {
   const img = api.renderImage(0, { dpi: 200 }).bytes;
   api.placeImage(1, [60, 400, 540, 800], img);

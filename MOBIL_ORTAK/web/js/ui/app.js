@@ -6,6 +6,7 @@ import { icon } from "./icons.js";
 import { settings, saveSettings, addRecent, removeRecent } from "./store.js";
 import { Viewer } from "./viewer.js";
 import { T, CATEGORIES, LABELS, SHORT, ICONS, HINTS, DRAW_TOOLS } from "./tools.js";
+import { appName } from "../branding.js";
 
 export class App {
   constructor(engine, bridge) {
@@ -97,7 +98,7 @@ export class App {
 
   updateState(state) {
     const open = !!state.open && !!this.doc;
-    $("#doc-title").textContent = open ? state.name : "PDF Studio";
+    $("#doc-title").textContent = open ? state.name : appName();
     $("#doc-title").classList.toggle("dirty", open && state.dirty);
     $("#btn-undo").disabled = !state.canUndo;
     $("#btn-redo").disabled = !state.canRedo;
@@ -593,7 +594,7 @@ export class App {
     home.innerHTML = "";
     const action = (ic, title, sub, fn) => h("button", { onclick: fn, html: icon(ic) + `<div><b>${title}</b><br><span>${sub}</span></div>` });
     const inner = h("div", { class: "home-inner" },
-      h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, "PDF Studio"), h("p", {}, "PDF düzenleyici — metin, açıklama, sayfa, form, güvenlik"))),
+      h("div", { class: "home-logo" }, h("img", { src: "img/icon.png", alt: "" }), h("div", {}, h("h1", {}, appName()), h("p", {}, "PDF düzenleyici — metin, açıklama, sayfa, form, güvenlik"))),
       h("div", { class: "home-actions" },
         action("open", "PDF aç", "Cihazdan ya da buluttan", () => this.openDialog()),
         action("new", "Boş belge", "A4, yeni sayfa", () => this.commands.run("new")),

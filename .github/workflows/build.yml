@@ -114,12 +114,12 @@ jobs:
         run: |
           bash ./gradlew --no-daemon assembleRelease
           mkdir -p ../dist-mobile
-          cp app/build/outputs/apk/release/PDFStudio-*-release.apk "../dist-mobile/PDFStudio-${APP_VERSION}.apk"
+          cp app/build/outputs/apk/release/YUCE-PDF-Editor-*-release.apk "../dist-mobile/YUCE-PDF-Editor-${APP_VERSION}.apk"
           ls -lh ../dist-mobile
 
       - name: APK içeriğini doğrula
         run: |
-          APK="dist-mobile/PDFStudio-${APP_VERSION}.apk"
+          APK="dist-mobile/YUCE-PDF-Editor-${APP_VERSION}.apk"
           unzip -l "$APK" | grep -q "assets/www/index.html"
           unzip -l "$APK" | grep -q "assets/www/vendor/mupdf/mupdf-wasm.wasm"
           unzip -l "$APK" | grep -q "assets/www/vendor/tesseract/lang/tur.traineddata"
@@ -180,7 +180,7 @@ jobs:
           test -f "$APP/www/vendor/mupdf/mupdf-wasm.wasm"
           mkdir -p Payload dist-mobile
           cp -R "$APP" Payload/
-          zip -qry "dist-mobile/PDFStudio-${APP_VERSION}-unsigned.ipa" Payload
+          zip -qry "dist-mobile/YUCE-PDF-Editor-${APP_VERSION}-unsigned.ipa" Payload
           ls -lh dist-mobile
 
       - name: Çıktıyı yükle
@@ -219,12 +219,12 @@ jobs:
           files: yayin/*
           generate_release_notes: true
           body: |
-            ## PDF Studio Mobil ${{ github.ref_name }}
+            ## YUCE PDF Düzenleyici (YUCE PDF EDITOR) — Mobil ${{ github.ref_name }}
 
             | Dosya | Platform | Açıklama |
             |---|---|---|
-            | `PDFStudio-${{ needs.version.outputs.version }}.apk` | Android 8.0+ | Telefona indirip açın ("bilinmeyen kaynaklardan yüklemeye izin ver" istenebilir) |
-            | `PDFStudio-${{ needs.version.outputs.version }}-unsigned.ipa` | iOS / iPadOS 15+ | İmzasız; AltStore / Sideloadly ile kendi Apple kimliğinizle imzalayıp yükleyin |
+            | `YUCE-PDF-Editor-${{ needs.version.outputs.version }}.apk` | Android 8.0+ | Telefona indirip açın ("bilinmeyen kaynaklardan yüklemeye izin ver" istenebilir) |
+            | `YUCE-PDF-Editor-${{ needs.version.outputs.version }}-unsigned.ipa` | iOS / iPadOS 15+ | İmzasız; AltStore / Sideloadly ile kendi Apple kimliğinizle imzalayıp yükleyin |
 
             `SHA256SUMS.txt` ile dosya bütünlüğünü doğrulayabilirsiniz.
 

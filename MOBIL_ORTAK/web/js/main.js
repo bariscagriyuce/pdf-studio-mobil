@@ -9,8 +9,10 @@ import { Interaction } from "./ui/interact.js";
 import { FontStore } from "./ui/fontstore.js";
 import { toast, sheetOpen, closeTopSheet, closeContextMenu } from "./ui/ui.js";
 import { TOOL_KEYS, T } from "./ui/tools.js";
+import { appName } from "./branding.js";
 
 async function boot() {
+  document.title = appName();
   const engine = new EngineClient();
   const bridge = new Bridge();
   await engine.start();
@@ -68,6 +70,7 @@ function setupKeyboard(app) {
         p: "print", w: "close", c: typing ? null : "copy", "=": "zoom_in", "+": "zoom_in", "-": "zoom_out", 0: "zoom_100", 1: "fit_width", 2: "fit_page",
       };
       if (e.shiftKey && k === "r") { e.preventDefault(); C("apply_redactions"); return; }
+      if (e.shiftKey && k === "p") { e.preventDefault(); C("print_area"); return; }
       if (e.shiftKey && e.key === "ArrowLeft") { e.preventDefault(); C("rot_left"); return; }
       if (e.shiftKey && e.key === "ArrowRight") { e.preventDefault(); C("rot_right"); return; }
       const id = map[k];
@@ -114,5 +117,5 @@ function setupDragDrop(app) {
 
 boot().catch((e) => {
   console.error(e);
-  document.body.innerHTML = `<div style="padding:24px;font-family:system-ui;color:#e5484d">PDF Studio başlatılamadı:<br><pre style="white-space:pre-wrap">${String(e && (e.stack || e.message || e))}</pre></div>`;
+  document.body.innerHTML = `<div style="padding:24px;font-family:system-ui;color:#e5484d">${appName()} başlatılamadı:<br><pre style="white-space:pre-wrap">${String(e && (e.stack || e.message || e))}</pre></div>`;
 });

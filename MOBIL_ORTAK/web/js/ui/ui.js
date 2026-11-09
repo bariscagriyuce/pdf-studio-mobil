@@ -165,7 +165,8 @@ export async function promptBox(title, label, value = "", { type = "text", place
  *      color | pages | info | custom | radio
  * Ortak: key, label, value, hint, show(values) → görünürlük
  */
-export function form(title, fields, { ok = "Tamam", cancel = "Vazgeç", wide = false, validate } = {}) {
+/** Alan listesinden form gövdesi kurar: { body, values() } — özel düğmeli pencereler için. */
+export function formBody(fields) {
   const getters = {};
   const rows = [];
   const values = () => Object.fromEntries(Object.entries(getters).map(([k, g]) => [k, g()]));
@@ -180,6 +181,11 @@ export function form(title, fields, { ok = "Tamam", cancel = "Vazgeç", wide = f
     body.append(el);
   }
   setTimeout(refresh, 0);
+  return { body, values };
+}
+
+export function form(title, fields, { ok = "Tamam", cancel = "Vazgeç", wide = false, validate } = {}) {
+  const { body, values } = formBody(fields);
   return openSheet({
     title, body, wide,
     buttons: [

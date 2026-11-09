@@ -10,6 +10,7 @@ import * as FO from "./forms.js";
 import * as PO from "./pageops.js";
 import * as SE from "./security.js";
 import * as EX from "./exporting.js";
+import * as AP from "./areaprint.js";
 import { BUNDLED, BASE14_FAMILIES } from "./fonts.js";
 import { makeZip } from "./zip.js";
 
@@ -80,6 +81,8 @@ export function createApi(options) {
     ...bind(E, SE, ["currentPermissions", "saveEncrypted", "saveDecrypted", "sanitize", "documentReport"]),
     // ------------------------------------------------------ dışa aktarma
     ...bind(E, EX, ["exportImages", "exportText", "exportPdfSubset", "compress", "ocrImage", "applyOcr"]),
+    // --------------------------------------------------- seçili alanı yazdır
+    ...bind(E, AP, ["areaPdf", "clampToPage"]),
 
     zip: (files) => makeZip(files),
 
@@ -87,7 +90,7 @@ export function createApi(options) {
       stamps: AN.STAMP_TEXTS, stampLabels: AN.STAMP_LABELS, noteIcons: AN.NOTE_ICONS,
       freeTextFonts: Object.keys(AN.FREE_TEXT_FONTS), typeNames: AN.TYPE_NAMES,
       pagePresets: PO.PAGE_PRESETS, permissions: SE.PERMISSIONS, methods: SE.METHODS,
-      textModes: EX.TEXT_MODES, imageFormats: EX.IMAGE_FORMATS, fieldTypes: FO.FIELD_TYPE_NAMES,
+      textModes: EX.TEXT_MODES, papers: AP.PAPERS, imageFormats: EX.IMAGE_FORMATS, fieldTypes: FO.FIELD_TYPE_NAMES,
       bundledFamilies: [...new Set(BUNDLED.map((f) => f.family))], base14: BASE14_FAMILIES,
     }),
   };

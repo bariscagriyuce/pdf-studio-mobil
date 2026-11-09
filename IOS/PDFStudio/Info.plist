@@ -2,10 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Görünen ad cihaz diline göre: Türkçe tr.lproj/InfoPlist.strings'ten, diğer
+	     dillerde aşağıdaki değer. Paket kimliği değişmez (güncelleme ve ayarlar korunur). -->
 	<key>CFBundleDevelopmentRegion</key>
-	<string>tr</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>PDF Studio</string>
+	<string>YUCE PDF EDITOR</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>tr</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

@@ -235,6 +235,7 @@ final class NativeBridge: NSObject, WKScriptMessageHandler, UIDocumentPickerDele
         let mode = msg["mode"] as? String ?? "saveAs"
         let name = sanitize(msg["name"] as? String ?? "belge.pdf")
         let handle = (msg["handle"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        let landscape = msg["landscape"] as? Bool
         io.async { [weak self] in
             try? w.handle.close()
             DispatchQueue.main.async {
@@ -254,7 +255,7 @@ final class NativeBridge: NSObject, WKScriptMessageHandler, UIDocumentPickerDele
                         }
                     case "saveAs": self.saveAs(id: id, file: file)
                     case "share": self.share(id: id, file: file)
-                    case "print": self.printFile(id: id, file: file)
+                    case "print": self.printFile(id: id, file: file, landscape: landscape)
                     default: self.fail(id, "Bilinmeyen yazma kipi: \(mode)")
                     }
                 } catch {
@@ -318,11 +319,13 @@ final class NativeBridge: NSObject, WKScriptMessageHandler, UIDocumentPickerDele
         reply(id, ["name": file.lastPathComponent])
     }
 
-    private func printFile(id: Int, file: URL) {
+    private func printFile(id: Int, file: URL, landscape: Bool?) {
         let pc = UIPrintInteractionController.shared
         let info = UIPrintInfo(dictionary: nil)
         info.jobName = file.lastPathComponent
         info.outputType = .general
+        // Seçili alan yazdırmada geniş alan yatay kâğıda basılsın
+        if let landscape { info.orientation = landscape ? .landscape : .portrait }
         pc.printInfo = info
         pc.printingItem = file
         pc.present(animated: true) { _, _, _ in
